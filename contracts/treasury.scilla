@@ -21,11 +21,13 @@ contract Treasury
 
 (* Immutable fields declaration *)
 (
-    owner : ByStr20
+    init_owner : ByStr20,
+    proxy_address : ByStr20
 )
 
 (* Mutable fields declaration *)
 
+field owner : ByStr20 = init_owner
 
 (* Transitions *)
 
