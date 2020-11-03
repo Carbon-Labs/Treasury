@@ -49,7 +49,7 @@ transition RecipientAcceptTransfer (sender : ByStr20, recipient : ByStr20, amoun
 
 end
 
-transition Transfer(to : ByStr20,  amount : Uint128, tokenAddress : ByStr20)
+transition transferTokens(to : ByStr20,  amount : Uint128, tokenAddress : ByStr20)
   msg = {_tag: "Transfer"; _recipient: tokenAddress; _amount: Uint128 0; to: to; amount: amount};
   msgs = one_msg msg;
   send msgs
