@@ -38,7 +38,10 @@ procedure lockTokensInVault() end   (* Alternative to burning - puts tokens back
 (*---------------*)
 (*  TRANSITIONS  *)
 (*---------------*)
-transition buyTokens() end
+transition buyTokens() 
+  accept
+end
+
 transition sellTokens() end
 
 (* Accept all ZRC-2 Tokens *)
