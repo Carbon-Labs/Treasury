@@ -35,6 +35,13 @@ field owner : ByStr20 = init_owner
 procedure distributeTokens() end    (* Alternative to minting for preminted tokens *)
 procedure lockTokensInVault() end   (* Alternative to burning - puts tokens back into treasury vault *)
 
+(* Transfer ZRC-2 Tokens *)
+procedure transferTokens(to : ByStr20,  amount : Uint128, tokenAddress : ByStr20)
+  msg = {_tag: "Transfer"; _recipient: tokenAddress; _amount: Uint128 0; to: to; amount: amount};
+  msgs = one_msg msg;
+  send msgs
+end
+
 (*---------------*)
 (*  TRANSITIONS  *)
 (*---------------*)
@@ -47,12 +54,6 @@ transition sellTokens() end
 (* Accept all ZRC-2 Tokens *)
 transition RecipientAcceptTransfer (sender : ByStr20, recipient : ByStr20, amount : Uint128)
 
-end
-
-transition transferTokens(to : ByStr20,  amount : Uint128, tokenAddress : ByStr20)
-  msg = {_tag: "Transfer"; _recipient: tokenAddress; _amount: Uint128 0; to: to; amount: amount};
-  msgs = one_msg msg;
-  send msgs
 end
 
 transition TransferSuccessCallBack (sender : ByStr20, recipient : ByStr20, amount : Uint128)
