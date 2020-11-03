@@ -1,1 +1,65 @@
 scilla_version 0
+
+import BoolUtils IntUtils
+
+(***************************************************)
+(*               Library                           *)
+(***************************************************)
+
+library ProxyLib
+
+let one_msg =
+  fun (msg: Message) =>
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+
+
+(***************************************************)
+(*             Contract                            *)
+(***************************************************)
+
+contract Proxy
+(
+    contract_owner: ByStr20,
+    init_supply : Uint128,
+    init_implementation : ByStr20,
+    init_admin : ByStr20
+)
+
+(* Mutable fields declaration *)
+(* Note that token balances are stored on the proxy contract, everything else on the implementation contract *)
+field implementation : ByStr20 = init_implementation
+field admin : ByStr20 = init_admin
+field balances : Map ByStr20 Uint128
+  = let emp_map = Emp ByStr20 Uint128 in
+    builtin put emp_map contract_owner init_supply
+field total_supply : Uint128 = init_supply
+field allowances : Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uint128)
+
+(* Procedures *)
+
+procedure isAdmin(address: ByStr20)
+  current_admin <- admin;
+  is_admin = builtin eq current_admin address;
+  match is_admin with
+  (* if True, continue *)
+  | True =>
+  (* if False, throw error *)
+  | False =>
+    err = CodeNotAdmin;
+    ThrowError err
+  end
+end
+
+(* Transitions *)
+
+transition UpgradeTo(newImplementation : ByStr20)
+  (* Conditional checks *)
+  isAdmin _sender;
+
+  (* Update state and emits event *)
+  implementation := newImplementation;
+  e = {_eventname : "Upgraded"; implementation_address : newImplementation};
+  event e
+end

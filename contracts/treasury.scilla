@@ -1,7 +1,7 @@
 scilla_version 0
 
 (***************************************************)
-(*               Associated library                *)
+(*               Library                           *)
 (***************************************************)
 
 library TreasuryLib
@@ -14,7 +14,7 @@ let one_msg =
 
 
 (***************************************************)
-(*             Contract definition                 *)
+(*             Contract                            *)
 (***************************************************)
 
 contract Treasury
@@ -29,8 +29,19 @@ contract Treasury
 
 field owner : ByStr20 = init_owner
 
-(* Transitions *)
+(*---------------*)
+(*  PROCEDURES   *)
+(*---------------*)
+procedure distributeTokens() end    (* Alternative to minting for preminted tokens *)
+procedure lockTokensInVault() end   (* Alternative to burning - puts tokens back into treasury vault *)
 
+(*---------------*)
+(*  TRANSITIONS  *)
+(*---------------*)
+transition buyTokens() end
+transition sellTokens() end
+
+(* Accept all ZRC-2 Tokens *)
 transition RecipientAcceptTransfer (sender : ByStr20, recipient : ByStr20, amount : Uint128)
 
 end
