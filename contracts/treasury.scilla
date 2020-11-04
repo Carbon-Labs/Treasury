@@ -3,14 +3,32 @@ scilla_version 0
 (***************************************************)
 (*               Library                           *)
 (***************************************************)
-
+import BoolUtils
 library TreasuryLib
 
+(* Global Variables *)
+let zero = Uint256 0
+
+(* Library Functions *)
 let one_msg =
   fun (msg: Message) =>
   let nil_msg = Nil {Message} in
   Cons {Message} msg nil_msg
 
+(* Error exception *)
+type Error =
+  | CodeNotAdmin
+  | CodeNotFound
+
+let make_error =
+  fun (result : Error) =>
+    let result_code = 
+      match result with
+      | CodeNotAdmin             => Int32 -1
+      | CodeNotFound             => Int32 -2
+      end
+    in
+    { _exception : "Error"; code : result_code }
 
 
 (***************************************************)
@@ -21,13 +39,15 @@ contract Treasury
 
 (* Immutable fields declaration *)
 (
-    init_owner : ByStr20,
+    init_admin : ByStr20,
+    init_company : ByStr20,
     proxy_address : ByStr20
 )
 
 (* Mutable fields declaration *)
 
-field owner : ByStr20 = init_owner
+field admin : ByStr20 = init_admin
+field company : ByStr20 = init_company (* Address of company that receives percentage of tokens distributed *)
 
 (*---------------*)
 (*  PROCEDURES   *)
@@ -37,9 +57,33 @@ procedure lockTokensInVault() end   (* Alternative to burning - puts tokens back
 
 (* Transfer ZRC-2 Tokens *)
 procedure transferTokens(to : ByStr20,  amount : Uint128, tokenAddress : ByStr20)
-  msg = {_tag: "Transfer"; _recipient: tokenAddress; _amount: Uint128 0; to: to; amount: amount};
+    IsAdmin;  
+    msg = {_tag: "Transfer"; _recipient: tokenAddress; _amount: Uint128 0; to: to; amount: amount};
+    msgs = one_msg msg;
+    send msgs
+end
+
+(* Transfer ZIL *)
+transition Transfer(recipient : ByStr20, amount : Uint128)
+  IsAdmin;
+  msg = {_tag : "AddFunds"; _recipient : recipient; _amount : amount};
   msgs = one_msg msg;
   send msgs
+end
+
+procedure IsAdmin()
+    is_admin = builtin eq admin _sender;
+    match is_admin with
+    | True => 
+    | False =>
+      err = CodeNotAdmin;
+      ThrowError err
+    end
+end
+
+procedure ThrowError(err : Error)
+  e = make_error err;
+  throw e
 end
 
 (*---------------*)
@@ -49,7 +93,21 @@ transition buyTokens()
   accept
 end
 
+(* ref: https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-5.md *)
+transition AddFunds() (* alias to buyTokens *)
+  msg = {_tag : "buyTokens"; _recipient : recipient; _amount : amount};
+  msgs = one_msg msg;
+  send msgs
+end
+
 transition sellTokens() end
+transition payDebt() end
+transition createDebt() end
+transition cancelDebt() end
+transition getDebtDetails() end
+transition getDebtAmountPaid() end
+transition getDebtCount() end
+transition getOutstandingDebtValue() end
 
 (* Accept all ZRC-2 Tokens *)
 transition RecipientAcceptTransfer (sender : ByStr20, recipient : ByStr20, amount : Uint128)
