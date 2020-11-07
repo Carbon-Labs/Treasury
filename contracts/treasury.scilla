@@ -19,6 +19,9 @@ let one_msg =
 type Error =
   | CodeNotAdmin
   | CodeNotFound
+  | CodeNotProxy
+  | CodeNotPaused
+  | CodeIsPaused
 
 let make_error =
   fun (result : Error) =>
@@ -26,6 +29,9 @@ let make_error =
       match result with
       | CodeNotAdmin             => Int32 -1
       | CodeNotFound             => Int32 -2
+      | CodeNotProxy             => Int32 -3
+      | CodeNotPaused            => Int32 -4
+      | CodeIsPaused             => Int32 -5
       end
     in
     { _exception : "Error"; code : result_code }
@@ -41,17 +47,92 @@ contract Treasury
 (
     init_admin : ByStr20,
     init_company : ByStr20,
-    proxy_address : ByStr20
+    proxy_address : ByStr20,
+    token_address: ByStr20,
+    base_value: Uint256
 )
 
 (* Mutable fields declaration *)
 
+field paused : Bool = True
+field under_funded : Bool = True
 field admin : ByStr20 = init_admin
-field company : ByStr20 = init_company (* Address of company that receives percentage of tokens distributed *)
+field company : ByStr20 = init_company    (* Address of company that receives percentage of tokens distributed *)
+field token_price : Uint256 = base_value  (* Price (in ZIL) of a single token *)
 
 (*---------------*)
 (*  PROCEDURES   *)
 (*---------------*)
+
+procedure ThrowError(err : Error)
+  e = make_error err;
+  throw e
+end
+
+(* Checks if caller is proxy *)
+procedure isProxy(address: ByStr20)
+  is_proxy = builtin eq proxy_address address;
+  match is_proxy with
+  | True => (* if True, continue *)
+  | False => (* if False, throw error *)
+    err = CodeNotProxy;
+    ThrowError err
+  end
+end
+
+procedure IsAdmin()
+    currentAdmin <- admin;
+    is_admin = builtin eq currentAdmin _sender;
+    match is_admin with
+    | True => (* if True, continue *)
+    | False => (* if False, throw error *)
+      err = CodeNotAdmin;
+      ThrowError err
+    end
+end
+
+procedure isPaused()
+  is_paused <- paused;
+  match is_paused with
+  | True =>
+  | False =>
+    err = CodeNotPaused;
+    ThrowError err
+  end
+end
+
+procedure isNotPaused()
+  is_paused <- paused;
+  match is_paused with
+  | True =>
+    err = CodeIsPaused;
+    ThrowError err
+  | False =>
+  end
+end
+
+transition Pause(initiator : ByStr20)
+  (* Conditional checks *)
+  isAdmin;
+  isNotPaused;
+  
+  (* Update state and emits event *)
+  paused := true;
+  e = { _eventname : "Paused"; sender : initiator};
+  event e
+end
+
+transition Unpause(initiator : ByStr20)
+  (* Conditional checks *)
+  isAdmin;
+  isPaused;
+  
+  (* Update state and emits event *)
+  paused := false;
+  e = {_eventname : "Unpaused"; sender : initiator};
+  event e
+end
+
 procedure distributeTokens() end    (* Alternative to minting for preminted tokens *)
 procedure lockTokensInVault() end   (* Alternative to burning - puts tokens back into treasury vault *)
 
@@ -64,26 +145,11 @@ procedure transferTokens(to : ByStr20,  amount : Uint128, tokenAddress : ByStr20
 end
 
 (* Transfer ZIL *)
-transition Transfer(recipient : ByStr20, amount : Uint128)
+procedure Transfer(recipient : ByStr20, amount : Uint128)
   IsAdmin;
   msg = {_tag : "AddFunds"; _recipient : recipient; _amount : amount};
   msgs = one_msg msg;
   send msgs
-end
-
-procedure IsAdmin()
-    is_admin = builtin eq admin _sender;
-    match is_admin with
-    | True => 
-    | False =>
-      err = CodeNotAdmin;
-      ThrowError err
-    end
-end
-
-procedure ThrowError(err : Error)
-  e = make_error err;
-  throw e
 end
 
 (*---------------*)
@@ -91,13 +157,7 @@ end
 (*---------------*)
 transition buyTokens() 
   accept
-end
 
-(* ref: https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-5.md *)
-transition AddFunds() (* alias to buyTokens *)
-  msg = {_tag : "buyTokens"; _recipient : recipient; _amount : amount};
-  msgs = one_msg msg;
-  send msgs
 end
 
 transition sellTokens() end
