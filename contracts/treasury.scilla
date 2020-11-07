@@ -187,5 +187,11 @@ transition RecipientAcceptTransfer (sender : ByStr20, recipient : ByStr20, amoun
 end
 
 transition TransferSuccessCallBack (sender : ByStr20, recipient : ByStr20, amount : Uint128)
-
+  isTokenContract = builtin eq _sender token_address;
+  match isTokenContract with 
+    | True =>
+    | False =>
+    err = CodeInvalidToken;
+    throwError err
+  end
 end
