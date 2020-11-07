@@ -8,6 +8,8 @@ library TreasuryLib
 
 (* Global Variables *)
 let zero = Uint256 0
+let true = True
+let false = False
 
 (* Library Functions *)
 let one_msg =
@@ -22,6 +24,7 @@ type Error =
   | CodeNotProxy
   | CodeNotPaused
   | CodeIsPaused
+  | CodeInvalidToken
 
 let make_error =
   fun (result : Error) =>
@@ -32,6 +35,7 @@ let make_error =
       | CodeNotProxy             => Int32 -3
       | CodeNotPaused            => Int32 -4
       | CodeIsPaused             => Int32 -5
+      | CodeInvalidToken         => Int32 -6
       end
     in
     { _exception : "Error"; code : result_code }
@@ -64,7 +68,7 @@ field token_price : Uint256 = base_value  (* Price (in ZIL) of a single token *)
 (*  PROCEDURES   *)
 (*---------------*)
 
-procedure ThrowError(err : Error)
+procedure throwError(err : Error)
   e = make_error err;
   throw e
 end
@@ -76,18 +80,18 @@ procedure isProxy(address: ByStr20)
   | True => (* if True, continue *)
   | False => (* if False, throw error *)
     err = CodeNotProxy;
-    ThrowError err
+    throwError err
   end
 end
 
-procedure IsAdmin()
+procedure isAdmin()
     currentAdmin <- admin;
     is_admin = builtin eq currentAdmin _sender;
     match is_admin with
     | True => (* if True, continue *)
     | False => (* if False, throw error *)
       err = CodeNotAdmin;
-      ThrowError err
+      throwError err
     end
 end
 
@@ -97,7 +101,7 @@ procedure isPaused()
   | True =>
   | False =>
     err = CodeNotPaused;
-    ThrowError err
+    throwError err
   end
 end
 
@@ -106,39 +110,18 @@ procedure isNotPaused()
   match is_paused with
   | True =>
     err = CodeIsPaused;
-    ThrowError err
+    throwError err
   | False =>
   end
 end
 
-transition Pause(initiator : ByStr20)
-  (* Conditional checks *)
-  isAdmin;
-  isNotPaused;
-  
-  (* Update state and emits event *)
-  paused := true;
-  e = { _eventname : "Paused"; sender : initiator};
-  event e
-end
-
-transition Unpause(initiator : ByStr20)
-  (* Conditional checks *)
-  isAdmin;
-  isPaused;
-  
-  (* Update state and emits event *)
-  paused := false;
-  e = {_eventname : "Unpaused"; sender : initiator};
-  event e
-end
 
 procedure distributeTokens() end    (* Alternative to minting for preminted tokens *)
 procedure lockTokensInVault() end   (* Alternative to burning - puts tokens back into treasury vault *)
 
 (* Transfer ZRC-2 Tokens *)
 procedure transferTokens(to : ByStr20,  amount : Uint128, tokenAddress : ByStr20)
-    IsAdmin;  
+    isAdmin;  
     msg = {_tag: "Transfer"; _recipient: tokenAddress; _amount: Uint128 0; to: to; amount: amount};
     msgs = one_msg msg;
     send msgs
@@ -146,7 +129,7 @@ end
 
 (* Transfer ZIL *)
 procedure Transfer(recipient : ByStr20, amount : Uint128)
-  IsAdmin;
+  isAdmin;
   msg = {_tag : "AddFunds"; _recipient : recipient; _amount : amount};
   msgs = one_msg msg;
   send msgs
@@ -155,6 +138,29 @@ end
 (*---------------*)
 (*  TRANSITIONS  *)
 (*---------------*)
+
+transition Pause()
+  (* Conditional checks *)
+  isAdmin;
+  isNotPaused;
+  
+  (* Update state and emits event *)
+  paused := true;
+  e = { _eventname : "Paused"};
+  event e
+end
+
+transition Unpause()
+  (* Conditional checks *)
+  isAdmin;
+  isPaused;
+  
+  (* Update state and emits event *)
+  paused := false;
+  e = {_eventname : "Unpaused"};
+  event e
+end
+
 transition buyTokens() 
   accept
 
@@ -169,9 +175,15 @@ transition getDebtAmountPaid() end
 transition getDebtCount() end
 transition getOutstandingDebtValue() end
 
-(* Accept all ZRC-2 Tokens *)
+(* Only accept Master Token *)
 transition RecipientAcceptTransfer (sender : ByStr20, recipient : ByStr20, amount : Uint128)
-
+  isTokenContract = builtin eq _sender token_address;
+  match isTokenContract with 
+    | True =>
+    | False =>
+    err = CodeInvalidToken;
+    throwError err
+  end
 end
 
 transition TransferSuccessCallBack (sender : ByStr20, recipient : ByStr20, amount : Uint128)
