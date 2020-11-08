@@ -4,7 +4,7 @@
   "description": "Treasury Contract for Zilliqa based DAOs",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha --reporter mochawesome --reporter-options quiet=true"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,7 @@
     "bn.js": "^5.1.3",
     "chai": "^4.2.0",
     "mocha": "^8.2.1",
+    "mochawesome": "^6.2.1",
     "tslib": "^2.0.3"
   }
 }

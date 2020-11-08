@@ -1,5 +1,8 @@
 var should = require('chai').should();
 var expect = require('chai').expect;
+//const assert = chai.assert;
+
+const fs = require('fs');
 
 const { BN, Long, bytes, units } = require('@zilliqa-js/util');
 const { Zilliqa } = require('@zilliqa-js/zilliqa');
@@ -64,7 +67,17 @@ describe('Base Contract Tests', function() {
   });
 
   describe('Deployment Checks', function() {
-    it.skip('should read contract source', function() {})
+    it('should read contract source', function() {
+      let ok = false;
+            try {
+                code = fs.readFileSync('contracts/treasury.scilla', 'utf-8');
+                ok = true;
+            } catch (err) {
+              throw err
+            }
+            expect(ok).to.be.true;
+            console.log(code);
+    })
     it.skip('should deploy the contract', async function() {})
     it.skip('should have an address', function() {})
     it.skip('should have correct admin address', function() {})
