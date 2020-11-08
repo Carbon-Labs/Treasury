@@ -59,7 +59,7 @@ contract Treasury
 (* Mutable fields declaration *)
 
 field paused : Bool = True
-field under_funded : Bool = True
+field under_funded : Bool = FALSE
 field admin : ByStr20 = init_admin
 field company : ByStr20 = init_company    (* Address of company that receives percentage of tokens distributed *)
 field token_price : Uint256 = base_value  (* Price (in ZIL) of a single token *)
