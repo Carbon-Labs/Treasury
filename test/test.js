@@ -10,7 +10,7 @@ const {toBech32Address, getAddressFromPrivateKey} = require('@zilliqa-js/crypto'
 
 const {addressEqual} = require ('../lib/addressEqual');
 
-network_choice = process.env.npm_config_network || 'dev';
+network_choice = process.env.npm_config_network || 'sim';
 
 // [network, chain_id, privateKey, account_address, timeout_deploy, timeout_transition]
 const networks = {
@@ -19,7 +19,13 @@ const networks = {
           '447a392d41017c14ec0a1786fc46388f63e7865ec759d07bce0a0c6e2dc41b5c',
           'zil1pw587sm57lvlu0wlwkc3gw2sddy35au6esw589',
           300000,
-          300000]
+          300000],
+  sim  : ['http://localhost:5555',
+         1,
+         'db11cfa086b92497c8ed5a4cc6edb3a5bfe3a640c43ffb9fc6aa0873c56f2ee3',
+         'zil10wemp699nulkrkdl7qu0ft459jhzan8g6r5lh7',
+         300000,
+         300000]
 };
 
 network_parameter = networks[network_choice.toLowerCase()]
@@ -76,10 +82,42 @@ describe('Base Contract Tests', function() {
               throw err
             }
             expect(ok).to.be.true;
-            console.log(code);
     })
-    it.skip('should deploy the contract', async function() {})
-    it.skip('should have an address', function() {})
+    it('should deploy the contract', async function() {
+      this.timeout(timeout_deploy);
+      this.slow(timeout_deploy / 2);
+      const MSG_VERSION = 1;
+      const VERSION = bytes.pack(chain_id, MSG_VERSION);
+      const myGasPrice = units.toQa('1000', units.Units.Li);
+      
+      /*
+        init_admin : ByStr20,
+        init_company : ByStr20,
+        proxy_address : ByStr20,
+        token_address: ByStr20,
+        base_value: Uint256
+      */
+
+      const init = [
+        { vname: '_scilla_version', type: 'Uint32', value: '0'},
+        { vname: 'init_admin', type:  'ByStr20', value: address },
+        { vname: 'init_company', type:  'ByStr20', value: address },
+        { vname: 'proxy_address', type:  'ByStr20', value: address },
+        { vname: 'token_address', type:  'ByStr20', value: address },
+        { vname: 'base_value', type:  'Uint256', value: '1000' }
+      ];
+
+      const contract = zilliqa.contracts.new(code, init);
+
+      [deployTx, treasury] = await contract.deploy({
+        version: VERSION,
+        gasPrice: myGasPrice,
+        gasLimit: Long.fromNumber(15000),
+      });
+      //console.log(deployTx);
+      console.log("        contract address =", treasury.address);
+      expect(deployTx.txParams.receipt.success).to.be.true;
+    })
     it.skip('should have correct admin address', function() {})
     it.skip('should have correct company address', function() {})
     it.skip('should have correct base price', function() {})
