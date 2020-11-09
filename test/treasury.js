@@ -41,7 +41,7 @@ const [network, chain_id, privateKey, account_address, timeout_deploy, timeout_t
 
 
 // Base Contract Tests
-describe('Base Contract Tests', function() {
+describe('Treasury Smart Contract Tests', function() {
 
   describe('Connect to Zilliqa Blockchain', function() {
 
