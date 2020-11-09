@@ -12,6 +12,9 @@ const {addressEqual} = require ('../lib/addressEqual');
 
 network_choice = process.env.npm_config_network || 'sim';
 
+//contract fields
+allState = "";
+
 // [network, chain_id, privateKey, account_address, timeout_deploy, timeout_transition]
 const networks = {
   dev  : ['https://dev-api.zilliqa.com',
@@ -79,7 +82,7 @@ describe('Base Contract Tests', function() {
                 code = fs.readFileSync('contracts/treasury.scilla', 'utf-8');
                 ok = true;
             } catch (err) {
-              throw err
+              throw err 
             }
             expect(ok).to.be.true;
     })
@@ -89,14 +92,6 @@ describe('Base Contract Tests', function() {
       const MSG_VERSION = 1;
       const VERSION = bytes.pack(chain_id, MSG_VERSION);
       const myGasPrice = units.toQa('1000', units.Units.Li);
-      
-      /*
-        init_admin : ByStr20,
-        init_company : ByStr20,
-        proxy_address : ByStr20,
-        token_address: ByStr20,
-        base_value: Uint256
-      */
 
       const init = [
         { vname: '_scilla_version', type: 'Uint32', value: '0'},
@@ -118,11 +113,30 @@ describe('Base Contract Tests', function() {
       console.log("        contract address =", treasury.address);
       expect(deployTx.txParams.receipt.success).to.be.true;
     })
-    it.skip('should have correct admin address', function() {})
-    it.skip('should have correct company address', function() {})
-    it.skip('should have correct base price', function() {})
-    it.skip('should be "paused" on contract creation', function() {})
-    it.skip('should not be "under funded" on contract creation', function() {})
+    it('should have correct admin address', async function() {
+      
+      allState = await treasury.getState();
+      expect(allState.admin).to.equal(address)
+
+    })
+
+    it('should have correct company address', function() {
+      expect(allState.company).to.equal(address)
+    })
+
+    // @todo: need to remove hard coded value of 1000
+    it('should have correct base price', function() {
+      expect(allState.token_price).to.equal('1000')
+    })
+
+    it('should be "paused" on contract creation', function() {
+      expect(allState.paused.constructor).to.equal('True')
+    })
+
+    it('should not be "under funded" on contract creation', function() {
+      expect(allState.under_funded.constructor).to.equal('False')
+    })
+
   });
 }),
 
