@@ -138,22 +138,52 @@ describe('Treasury Smart Contract Tests', function() {
     })
 
   });
-}),
 
-// Mangament Functions
-describe('Contract Tests', function() {
-  describe('Management Functions', function() {
-    describe('Pausing Related Transitions', function() {
-      it.skip('should only allow admin to pause when unpaused', function() {})
-      it.skip('should only allow admin to unpause when paused', function() {})
-      it.skip('should not only pausing if not admin', function() {})
-      it.skip('should not only unpausing if not admin', function() {})
-    })
-    describe('Admin Related Transitions', function() {
-      it.skip('should allow admin to change admin', function() {})
-      it.skip('should not allow changing admin if not admin', function() {})
-      it.skip('should allow admin to change company', function() {})
-      it.skip('should not allow changing company if not admin', function() {})
-    })
-  })
-});
+  // Mangament Functions
+  describe('Contract Tests', function() {
+    describe('Management Functions', function() {
+      describe('Pausing Related Transitions', function() {
+        it.skip('should only allow admin to pause when unpaused', function() {})
+        it.skip('should only allow admin to unpause when paused', function() {})
+        it.skip('should not only pausing if not admin', function() {})
+        it.skip('should not only unpausing if not admin', function() {})
+      })
+      describe('Admin Related Transitions', function() {
+        it.skip('should allow admin to change admin', function() {})
+        it.skip('should not allow changing admin if not admin', function() {})
+        it.skip('should allow admin to change company', function() {})
+        it.skip('should not allow changing company if not admin', function() {})
+      })
+      describe('Trading Features', function() {
+        it.skip('should not allow buying of tokens when paused', function() {})
+        it.skip('should not allow selling of tokens when paused', function() {})
+        it.skip('should allow buying of tokens when unpaused', function() {})
+        it.skip('should allow selling of tokens when unpaused', function() {})
+        it.skip('should not allow selling more tokens than you have', function() {})
+        it.skip('should issue correct amount of tokens when buying tokens with 1 ZIL', function() {})
+        it.skip('should send the correct amount of ZIL to you after selling tokens', function() {})
+      })
+      describe('Invoicing Features', function() {
+       it.skip('should allow creating new invoice', function() {}) 
+       it.skip('should only allow admin to cancel an invoice', function() {})
+       it.skip('should error when trying to cancel an invoice that does not exist', function() {})
+       it.skip('should allow an invoice to be partially paid with tokens', function() {})
+       it.skip('should allow an invoice to be paid in full with tokens', function() {})
+       it.skip('should allow an invoice to be partially paid with ZIL', function() {})
+       it.skip('should allow an invoice to be paid in full with ZIL', function() {})
+       it.skip('should allow an invoice to be partially paid with combination of tokens and ZIL', function() {})
+       it.skip('should allow an invoice to be paid in full with combination of tokens and ZIL', function() {})
+       it.skip('should issue new tokens if invoice is overpaid with ZIL', function() {})
+       it.skip('should allow an invoice to be overpaid with combination of tokens and ZIL', function() {})
+       it.skip('should allow multiple payments against an invoice', function() {})
+       it.skip('should only consume the correct amount of tokens when invoice is overpaid', function() {})
+       it.skip('should not allow payments against fully paid invoices', function() {})
+       
+
+      })
+    });
+
+    
+
+  });
+})
