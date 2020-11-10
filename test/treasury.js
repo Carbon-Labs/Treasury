@@ -9,6 +9,7 @@ const { Zilliqa } = require('@zilliqa-js/zilliqa');
 const {toBech32Address, getAddressFromPrivateKey} = require('@zilliqa-js/crypto');
 
 const {addressEqual} = require ('../lib/addressEqual');
+const {TreasuryAPI, myGasPrice} = require('../lib/TreasuryAPI');
 
 network_choice = process.env.npm_config_network || 'sim';
 
@@ -35,7 +36,7 @@ network_parameter = networks[network_choice.toLowerCase()]
 if (network_parameter == null)
     throw new Error("unknown blockchain network");
 
-console.log({network_parameter});
+//console.log({network_parameter});
 
 const [network, chain_id, privateKey, account_address, timeout_deploy, timeout_transition] = network_parameter;
 
@@ -99,7 +100,7 @@ describe('Treasury Smart Contract Tests', function() {
         { vname: 'init_company', type:  'ByStr20', value: address },
         { vname: 'proxy_address', type:  'ByStr20', value: address },
         { vname: 'token_address', type:  'ByStr20', value: address },
-        { vname: 'base_value', type:  'Uint256', value: '1000' }
+        { vname: 'base_value', type:  'Uint128', value: '5' }
       ];
 
       const contract = zilliqa.contracts.new(code, init);
@@ -124,9 +125,10 @@ describe('Treasury Smart Contract Tests', function() {
       expect(allState.company).to.equal(address)
     })
 
-    // @todo: need to remove hard coded value of 1000
+    // @todo: need to remove hard coded value of 5
     it('should have correct base price', function() {
-      expect(allState.token_price).to.equal('1000')
+      const bn_price = new BN(allState.token_price);
+      expect(bn_price).to.deep.equal(units.toQa('5', units.Units.Zil))
     })
 
     it('should be "paused" on contract creation', function() {
@@ -141,18 +143,42 @@ describe('Treasury Smart Contract Tests', function() {
 
   // Mangament Functions
   describe('Contract Tests', function() {
+
+    this.timeout(timeout_transition);
+    this.slow(timeout_transition / 2);
+
+    it('should get the treasury_api', async function() {
+      treasury_api = new TreasuryAPI(treasury, chain_id);
+      expect(treasury_api).be.instanceOf(TreasuryAPI);
+
+      //const zilBalance = await treasury_api.getZilBalance();
+      //console.log("Zil Balance ", zilBalance._balance);
+    })
+
     describe('Management Functions', function() {
       describe('Pausing Related Transitions', function() {
-        it.skip('should only allow admin to pause when unpaused', function() {})
-        it.skip('should only allow admin to unpause when paused', function() {})
-        it.skip('should not only pausing if not admin', function() {})
-        it.skip('should not only unpausing if not admin', function() {})
+        it('should allow admin to unpause when paused', async function() {
+          const receipt = await treasury_api.unpauseContract();
+          expect(receipt.success).to.be.true;
+        })
+
+        it('should allow admin to pause when unpaused', async function() {
+          const receipt = await treasury_api.pauseContract();
+          expect(receipt.success).to.be.true;          
+        })
+
+        it.skip('should not allow pausing if not admin', function() {})
+        it.skip('should not allow unpausing if not admin', function() {})
       })
       describe('Admin Related Transitions', function() {
         it.skip('should allow admin to change admin', function() {})
         it.skip('should not allow changing admin if not admin', function() {})
         it.skip('should allow admin to change company', function() {})
         it.skip('should not allow changing company if not admin', function() {})
+      })
+      describe('Internal Functions', function() {
+        it.skip('should recalculate exchange rates when receiving ZIL that is not for buying tokens', function() {})
+        it.skip('should recalculate exchange rates when receiving TOKENS that is not for paying invoice', function() {})
       })
       describe('Trading Features', function() {
         it.skip('should not allow buying of tokens when paused', function() {})

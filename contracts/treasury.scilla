@@ -3,11 +3,14 @@ scilla_version 0
 (***************************************************)
 (*               Library                           *)
 (***************************************************)
-import BoolUtils
+import BoolUtils IntUtils
 library TreasuryLib
 
 (* Global Variables *)
-let zero = Uint256 0
+let zero = Uint128 0
+let one = Uint128 1
+let tenpower12 = Uint128 1000000000000       (* Zil :) *)
+let token = Uint128 100000000       (* This should be pulled in from associated token contract state *)
 let true = True
 let false = False
 
@@ -53,7 +56,7 @@ contract Treasury
     init_company : ByStr20,
     proxy_address : ByStr20,
     token_address: ByStr20,
-    base_value: Uint256
+    base_value: Uint128                   (* Used to calculate exchange rates - this should be the number of ZIL to buy 1 Token *)
 )
 
 (* Mutable fields declaration *)
@@ -62,7 +65,10 @@ field paused : Bool = True
 field under_funded : Bool = False
 field admin : ByStr20 = init_admin
 field company : ByStr20 = init_company    (* Address of company that receives percentage of tokens distributed *)
-field token_price : Uint256 = base_value  (* Price (in ZIL) of a single token *)
+field token_price : Uint128 = builtin mul base_value tenpower12 (* Price (in ZIL) of a single token *)
+field zil_price : Uint128 = builtin div token base_value (* Price (in Token) of a single ZIL *)
+
+
 
 (*---------------*)
 (*  PROCEDURES   *)
