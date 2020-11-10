@@ -150,9 +150,6 @@ describe('Treasury Smart Contract Tests', function() {
     it('should get the treasury_api', async function() {
       treasury_api = new TreasuryAPI(treasury, chain_id);
       expect(treasury_api).be.instanceOf(TreasuryAPI);
-
-      //const zilBalance = await treasury_api.getZilBalance();
-      //console.log("Zil Balance ", zilBalance._balance);
     })
 
     describe('Management Functions', function() {
