@@ -16,7 +16,7 @@ network_choice = process.env.npm_config_network || 'sim';
 //contract fields
 allState = "";
 
-// [network, chain_id, privateKey, account_address, timeout_deploy, timeout_transition]
+// [network, chain_id, adminPrivateKey, adminAddress, timeout_deploy, timeout_transition]
 const networks = {
   dev  : ['https://dev-api.zilliqa.com',
           333,
@@ -28,8 +28,8 @@ const networks = {
          1,
          'db11cfa086b92497c8ed5a4cc6edb3a5bfe3a640c43ffb9fc6aa0873c56f2ee3',
          'zil10wemp699nulkrkdl7qu0ft459jhzan8g6r5lh7',
-         300000,
-         300000]
+         100000,
+         100000]
 };
 
 network_parameter = networks[network_choice.toLowerCase()]
@@ -38,7 +38,11 @@ if (network_parameter == null)
 
 //console.log({network_parameter});
 
-const [network, chain_id, privateKey, account_address, timeout_deploy, timeout_transition] = network_parameter;
+//Testing Constants
+const [network, chain_id, adminPrivateKey, adminAddress, timeout_deploy, timeout_transition] = network_parameter;
+const nodeVersion = 'v10.';
+const baseValue = '5';
+
 
 
 // Base Contract Tests
@@ -48,7 +52,7 @@ describe('Treasury Smart Contract Tests', function() {
 
     it('should run on node version v10', function() {
         const node_version = process.version;
-        const ok = (node_version.substring(0,4) == 'v10.');
+        const ok = (node_version.substring(0,4) == nodeVersion);
         expect(ok).to.be.true;
     })
 
@@ -60,9 +64,9 @@ describe('Treasury Smart Contract Tests', function() {
     })
 
     it('should have the right test account', async function() {
-      zilliqa.wallet.addByPrivateKey(privateKey);
-      address = getAddressFromPrivateKey(privateKey).toLowerCase();
-      const ok = addressEqual(address, account_address);
+      zilliqa.wallet.addByPrivateKey(adminPrivateKey);
+      address = getAddressFromPrivateKey(adminPrivateKey).toLowerCase();
+      const ok = addressEqual(address, adminAddress);
       expect(ok).to.be.true;
     })
 
@@ -100,7 +104,7 @@ describe('Treasury Smart Contract Tests', function() {
         { vname: 'init_company', type:  'ByStr20', value: address },
         { vname: 'proxy_address', type:  'ByStr20', value: address },
         { vname: 'token_address', type:  'ByStr20', value: address },
-        { vname: 'base_value', type:  'Uint128', value: '5' }
+        { vname: 'base_value', type:  'Uint128', value: baseValue }
       ];
 
       const contract = zilliqa.contracts.new(code, init);
@@ -125,10 +129,9 @@ describe('Treasury Smart Contract Tests', function() {
       expect(allState.company).to.equal(address)
     })
 
-    // @todo: need to remove hard coded value of 5
     it('should have correct base price', function() {
       const bn_price = new BN(allState.token_price);
-      expect(bn_price).to.deep.equal(units.toQa('5', units.Units.Zil))
+      expect(bn_price).to.deep.equal(units.toQa(baseValue, units.Units.Zil))
     })
 
     it('should be "paused" on contract creation', function() {
@@ -201,12 +204,9 @@ describe('Treasury Smart Contract Tests', function() {
        it.skip('should allow multiple payments against an invoice', function() {})
        it.skip('should only consume the correct amount of tokens when invoice is overpaid', function() {})
        it.skip('should not allow payments against fully paid invoices', function() {})
-       
 
       })
     });
-
-    
 
   });
 })
