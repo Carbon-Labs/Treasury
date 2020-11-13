@@ -26,8 +26,8 @@ const networks = {
           300000],
   sim  : ['http://localhost:5555',
          1,
-         'db11cfa086b92497c8ed5a4cc6edb3a5bfe3a640c43ffb9fc6aa0873c56f2ee3',
-         'zil10wemp699nulkrkdl7qu0ft459jhzan8g6r5lh7',
+         '447a392d41017c14ec0a1786fc46388f63e7865ec759d07bce0a0c6e2dc41b5c',
+         'zil1pw587sm57lvlu0wlwkc3gw2sddy35au6esw589',
          100000,
          100000]
 };
@@ -42,7 +42,8 @@ if (network_parameter == null)
 const [network, chain_id, adminPrivateKey, adminAddress, timeout_deploy, timeout_transition] = network_parameter;
 const nodeVersion = 'v10.';
 const baseValue = '5';
-
+const nonAdminPrivateKey = 'db11cfa086b92497c8ed5a4cc6edb3a5bfe3a640c43ffb9fc6aa0873c56f2ee3';
+const nonAdminAddress = 'zil10wemp699nulkrkdl7qu0ft459jhzan8g6r5lh7';
 
 
 // Base Contract Tests
@@ -164,14 +165,44 @@ describe('Treasury Smart Contract Tests', function() {
 
         it('should allow admin to pause when unpaused', async function() {
           const receipt = await treasury_api.pauseContract();
+          //console.log(receipt);
           expect(receipt.success).to.be.true;          
         })
 
-        it.skip('should not allow pausing if not admin', function() {})
-        it.skip('should not allow unpausing if not admin', function() {})
+        it.skip('should not allow unpausing if not admin', async function() {
+          await zilliqa.wallet.addByPrivateKey(nonAdminPrivateKey);
+
+          const address = getAddressFromPrivateKey(nonAdminPrivateKey);
+          console.log(`My account address is: ${address}`);
+          console.log(`My account bech32 address is: ${toBech32Address(address)}`);
+
+          const receipt = await treasury_api.unpauseContract();
+          console.log(receipt);
+          expect(receipt.success).to.be.false;
+        })
+
+        it.skip('should not allow pausing if not admin', async function() {
+          
+          // we need to unpause the contract again first
+          zilliqa.wallet.addByPrivateKey(adminPrivateKey);
+          await treasury_api.unpauseContract();
+
+          zilliqa.wallet.addByPrivateKey(nonAdminPrivateKey);
+          const receipt = await treasury_api.pauseContract();
+          expect(receipt.success).to.be.false; 
+        })
+        
       })
       describe('Admin Related Transitions', function() {
-        it.skip('should allow admin to change admin', function() {})
+        it('should allow admin to change admin', async function() {
+
+          //make sure we are calling with current admin
+          zilliqa.wallet.addByPrivateKey(adminPrivateKey);
+
+          const receipt = await treasury_api.changeAdmin(nonAdminAddress);
+          console.log(receipt);
+          expect(receipt.success).to.be.true; 
+        })
         it.skip('should not allow changing admin if not admin', function() {})
         it.skip('should allow admin to change company', function() {})
         it.skip('should not allow changing company if not admin', function() {})
