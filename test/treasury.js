@@ -43,7 +43,8 @@ const [network, chain_id, adminPrivateKey, adminAddress, timeout_deploy, timeout
 const nodeVersion = 'v10.';
 const baseValue = '5';
 const nonAdminPrivateKey = 'db11cfa086b92497c8ed5a4cc6edb3a5bfe3a640c43ffb9fc6aa0873c56f2ee3';
-const nonAdminAddress = 'zil10wemp699nulkrkdl7qu0ft459jhzan8g6r5lh7';
+const nonAdminAddress = getAddressFromPrivateKey(nonAdminPrivateKey).toLowerCase();
+const nonAdminAddressBech32 = 'zil10wemp699nulkrkdl7qu0ft459jhzan8g6r5lh7';
 
 
 // Base Contract Tests
@@ -199,10 +200,15 @@ describe('Treasury Smart Contract Tests', function() {
           //make sure we are calling with current admin
           zilliqa.wallet.addByPrivateKey(adminPrivateKey);
 
-          const receipt = await treasury_api.changeAdmin(nonAdminAddress);
-          console.log(receipt);
-          expect(receipt.success).to.be.true; 
+          // test invalid address fails
+          const receipt1 = await treasury_api.changeAdmin("InvalidAddress");
+          expect(receipt1.success).to.be.false;
+
+          // test valid address succeeds
+          const receipt2 = await treasury_api.changeAdmin(nonAdminAddress);
+          expect(receipt2.success).to.be.true; 
         })
+        
         it.skip('should not allow changing admin if not admin', function() {})
         it.skip('should allow admin to change company', function() {})
         it.skip('should not allow changing company if not admin', function() {})

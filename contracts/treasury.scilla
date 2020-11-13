@@ -167,6 +167,16 @@ transition Unpause()
   event e
 end
 
+transition ChangeAdmin(newAdminAddress : ByStr20)
+  (* Conditional checks *)
+  isAdmin;
+
+  admin := newAdminAddress;
+  e = {_eventname : "Change Admin"};
+  event e
+
+end  
+
 transition buyTokens() 
   accept
 
