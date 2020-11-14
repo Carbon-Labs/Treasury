@@ -36,15 +36,91 @@ network_parameter = networks[network_choice.toLowerCase()]
 if (network_parameter == null)
     throw new Error("unknown blockchain network");
 
-//console.log({network_parameter});
 
-//Testing Constants
+//Testing Constants / Variables
 const [network, chain_id, adminPrivateKey, adminAddress, timeout_deploy, timeout_transition] = network_parameter;
+let network_id = '';
 const nodeVersion = 'v10.';
-const baseValue = '5';
+const baseValue = '5'; // In ZIL
 const nonAdminPrivateKey = 'db11cfa086b92497c8ed5a4cc6edb3a5bfe3a640c43ffb9fc6aa0873c56f2ee3';
 const nonAdminAddress = getAddressFromPrivateKey(nonAdminPrivateKey).toLowerCase();
 const nonAdminAddressBech32 = 'zil10wemp699nulkrkdl7qu0ft459jhzan8g6r5lh7';
+
+/**
+ * Runs at start of suite
+ */
+before(async function() {
+  zilliqa = new Zilliqa(network);
+  network_id = await zilliqa.network.GetNetworkId();
+
+  // Check that we are using correct address
+  zilliqa.wallet.addByPrivateKey(adminPrivateKey);
+  address = getAddressFromPrivateKey(adminPrivateKey).toLowerCase();
+  const addressCheck = addressEqual(address, adminAddress);
+  expect(addressCheck).to.be.true;
+
+  // Check address has at least 100 ZIL
+  const bal_obj = await zilliqa.blockchain.getBalance(address);
+  const balance_BN = new BN(bal_obj.result.balance);
+  const min_amount_BN = units.toQa(100, units.Units.Zil);
+  let ok = balance_BN.gte(min_amount_BN);
+  expect(ok).to.be.true;
+
+  // Read contract address
+  ok = false;
+  try {
+    code = fs.readFileSync('contracts/treasury.scilla', 'utf-8');
+    ok = true;
+  } catch (err) {
+    throw err 
+  }
+  expect(ok).to.be.true;
+
+  // Deploy the contract
+  this.timeout(timeout_deploy);
+  this.slow(timeout_deploy / 2);
+  const MSG_VERSION = 1;
+  const VERSION = bytes.pack(chain_id, MSG_VERSION);
+  const myGasPrice = units.toQa('1000', units.Units.Li);
+
+  const init = [
+    { vname: '_scilla_version', type: 'Uint32', value: '0'},
+    { vname: 'init_admin', type:  'ByStr20', value: address },
+    { vname: 'init_company', type:  'ByStr20', value: address },
+    { vname: 'proxy_address', type:  'ByStr20', value: address },
+    { vname: 'token_address', type:  'ByStr20', value: address },
+    { vname: 'base_value', type:  'Uint128', value: baseValue }
+  ];
+
+  const contract = zilliqa.contracts.new(code, init);
+
+  [deployTx, treasury] = await contract.deploy({
+    version: VERSION,
+    gasPrice: myGasPrice,
+    gasLimit: Long.fromNumber(15000),
+  });
+
+  console.log("Deployed Contract Address =", treasury.address);
+  expect(deployTx.txParams.receipt.success).to.be.true;
+
+  treasury_api = new TreasuryAPI(treasury, chain_id);
+  expect(treasury_api).be.instanceOf(TreasuryAPI);
+
+});
+
+/**
+ * Runs before each test. Use it to reset back to a known state
+ */
+beforeEach(async function() {
+
+  
+  //Reset admin
+  await treasury_api.setSigningAddress(adminPrivateKey);
+
+  //Ensure contract is unpaused
+
+
+});
 
 
 // Base Contract Tests
@@ -54,77 +130,22 @@ describe('Treasury Smart Contract Tests', function() {
 
     it('should run on node version v10', function() {
         const node_version = process.version;
-        const ok = (node_version.substring(0,4) == nodeVersion);
-        expect(ok).to.be.true;
+        const nodeVersionCheck = (node_version.substring(0,4) == nodeVersion);
+        expect(nodeVersionCheck).to.be.true;
     })
 
-    it('should connect to the blockchain and get the right chain_id', async function() {
-      zilliqa = new Zilliqa(network);
-      const network_id = await zilliqa.network.GetNetworkId();
+    it('should connect to the blockchain and get the right chain_id', async function() {    
       const id = parseInt(network_id.result)
       expect(id).to.equal(chain_id)
-    })
-
-    it('should have the right test account', async function() {
-      zilliqa.wallet.addByPrivateKey(adminPrivateKey);
-      address = getAddressFromPrivateKey(adminPrivateKey).toLowerCase();
-      const ok = addressEqual(address, adminAddress);
-      expect(ok).to.be.true;
-    })
-
-    it('should have at least 10 ZIL in the account', async function () {
-      const bal_obj = await zilliqa.blockchain.getBalance(address);
-      const balance_BN = new BN(bal_obj.result.balance);
-      const min_amount_BN = units.toQa(10, units.Units.Zil);
-      const ok = balance_BN.gte(min_amount_BN);
-      expect(ok).to.be.true;
     })
 
   });
 
   describe('Deployment Checks', function() {
-    it('should read contract source', function() {
-      let ok = false;
-            try {
-                code = fs.readFileSync('contracts/treasury.scilla', 'utf-8');
-                ok = true;
-            } catch (err) {
-              throw err 
-            }
-            expect(ok).to.be.true;
-    })
-    it('should deploy the contract', async function() {
-      this.timeout(timeout_deploy);
-      this.slow(timeout_deploy / 2);
-      const MSG_VERSION = 1;
-      const VERSION = bytes.pack(chain_id, MSG_VERSION);
-      const myGasPrice = units.toQa('1000', units.Units.Li);
 
-      const init = [
-        { vname: '_scilla_version', type: 'Uint32', value: '0'},
-        { vname: 'init_admin', type:  'ByStr20', value: address },
-        { vname: 'init_company', type:  'ByStr20', value: address },
-        { vname: 'proxy_address', type:  'ByStr20', value: address },
-        { vname: 'token_address', type:  'ByStr20', value: address },
-        { vname: 'base_value', type:  'Uint128', value: baseValue }
-      ];
-
-      const contract = zilliqa.contracts.new(code, init);
-
-      [deployTx, treasury] = await contract.deploy({
-        version: VERSION,
-        gasPrice: myGasPrice,
-        gasLimit: Long.fromNumber(15000),
-      });
-      //console.log(deployTx);
-      console.log("        contract address =", treasury.address);
-      expect(deployTx.txParams.receipt.success).to.be.true;
-    })
     it('should have correct admin address', async function() {
-      
       allState = await treasury.getState();
       expect(allState.admin).to.equal(address)
-
     })
 
     it('should have correct company address', function() {
@@ -153,8 +174,7 @@ describe('Treasury Smart Contract Tests', function() {
     this.slow(timeout_transition / 2);
 
     it('should get the treasury_api', async function() {
-      treasury_api = new TreasuryAPI(treasury, chain_id);
-      expect(treasury_api).be.instanceOf(TreasuryAPI);
+      
     })
 
     describe('Management Functions', function() {
@@ -170,27 +190,25 @@ describe('Treasury Smart Contract Tests', function() {
           expect(receipt.success).to.be.true;          
         })
 
-        it.skip('should not allow unpausing if not admin', async function() {
-          await zilliqa.wallet.addByPrivateKey(nonAdminPrivateKey);
-
-          const address = getAddressFromPrivateKey(nonAdminPrivateKey);
-          console.log(`My account address is: ${address}`);
-          console.log(`My account bech32 address is: ${toBech32Address(address)}`);
-
+        it('should not allow unpausing if not admin', async function() {
+          await treasury_api.setSigningAddress(nonAdminPrivateKey)
           const receipt = await treasury_api.unpauseContract();
-          console.log(receipt);
           expect(receipt.success).to.be.false;
         })
 
-        it.skip('should not allow pausing if not admin', async function() {
+        it('should not allow pausing if not admin', async function() {
           
           // we need to unpause the contract again first
-          zilliqa.wallet.addByPrivateKey(adminPrivateKey);
-          await treasury_api.unpauseContract();
+          const receipt1 = await treasury_api.unpauseContract();
+          expect(receipt1.success).to.be.true;
 
-          zilliqa.wallet.addByPrivateKey(nonAdminPrivateKey);
-          const receipt = await treasury_api.pauseContract();
-          expect(receipt.success).to.be.false; 
+          //
+          await treasury_api.setSigningAddress(nonAdminPrivateKey)
+
+          /* this is a bad test as it could be false for wrong reason, i.e already paused */
+          /* need to check for correct error code */
+          const receipt2 = await treasury_api.pauseContract();
+          expect(receipt2.success).to.be.false; 
         })
         
       })

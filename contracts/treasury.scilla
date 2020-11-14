@@ -163,7 +163,7 @@ transition Unpause()
   
   (* Update state and emits event *)
   paused := false;
-  e = {_eventname : "Unpaused"};
+  e = {_eventname : "Unpaused"; operator: _sender};
   event e
 end
 
