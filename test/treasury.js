@@ -112,15 +112,22 @@ before(async function() {
  * Runs before each test. Use it to reset back to a known state
  */
 beforeEach(async function() {
-
   
   //Reset admin
   await treasury_api.setSigningAddress(adminPrivateKey);
 
-  //Ensure contract is unpaused
-
 
 });
+
+function logger() {
+  console.log("test");
+};
+
+function checkException(receipt, exceptionCode) {
+  /* This is very 'hacky' - need to extract out to an array walker */
+  exceptions = receipt.exceptions[0]['message'];
+  expect(exceptions).to.include(exceptionCode);  /* refer to contract for correct codes */
+}
 
 
 // Base Contract Tests
@@ -173,9 +180,6 @@ describe('Treasury Smart Contract Tests', function() {
     this.timeout(timeout_transition);
     this.slow(timeout_transition / 2);
 
-    it('should get the treasury_api', async function() {
-      
-    })
 
     describe('Management Functions', function() {
       describe('Pausing Related Transitions', function() {
@@ -185,15 +189,31 @@ describe('Treasury Smart Contract Tests', function() {
         })
 
         it('should allow admin to pause when unpaused', async function() {
+          
           const receipt = await treasury_api.pauseContract();
-          //console.log(receipt);
-          expect(receipt.success).to.be.true;          
+          expect(receipt.success).to.be.true;
         })
 
         it('should not allow unpausing if not admin', async function() {
+
+          exceptionCode = 'Int32 -1';
+
+          //make sure it is paused first
+          const receipt = await treasury_api.pauseContract();
+          expect(receipt.success).to.be.true;
+          //console.log(receipt);
+
+          
+          // change txn signer to non adming...
           await treasury_api.setSigningAddress(nonAdminPrivateKey)
-          const receipt = await treasury_api.unpauseContract();
-          expect(receipt.success).to.be.false;
+          // ...and attempt to unpause
+          const receipt2 = await treasury_api.unpauseContract();
+          
+          checkException(receipt2, exceptionCode);
+
+          // additional check
+          expect(receipt2.success).to.be.false;
+          
         })
 
         it('should not allow pausing if not admin', async function() {
@@ -202,13 +222,17 @@ describe('Treasury Smart Contract Tests', function() {
           const receipt1 = await treasury_api.unpauseContract();
           expect(receipt1.success).to.be.true;
 
-          //
+          // change signer to non admin
+          // note - do not need to change back as, beforeEach takes care of that for us.
           await treasury_api.setSigningAddress(nonAdminPrivateKey)
 
-          /* this is a bad test as it could be false for wrong reason, i.e already paused */
-          /* need to check for correct error code */
+          /* This is very 'hacky' - need to extract out to an array walker */
           const receipt2 = await treasury_api.pauseContract();
-          expect(receipt2.success).to.be.false; 
+          exceptions = receipt2.exceptions[0]['message'];
+          expect(exceptions).to.include('Int32 -1');  /* refer to contract for correct codes */
+
+          // not really needed, but good to check that txn failed.
+          expect(receipt2.success).to.be.false;
         })
         
       })

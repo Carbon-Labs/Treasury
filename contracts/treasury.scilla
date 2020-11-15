@@ -148,7 +148,6 @@ end
 transition Pause()
   (* Conditional checks *)
   isAdmin;
-  isNotPaused;
   
   (* Update state and emits event *)
   paused := true;
@@ -159,7 +158,6 @@ end
 transition Unpause()
   (* Conditional checks *)
   isAdmin;
-  isPaused;
   
   (* Update state and emits event *)
   paused := false;
