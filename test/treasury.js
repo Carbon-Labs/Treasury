@@ -21,13 +21,13 @@ const networks = {
   dev  : ['https://dev-api.zilliqa.com',
           333,
           '447a392d41017c14ec0a1786fc46388f63e7865ec759d07bce0a0c6e2dc41b5c',
-          'zil1pw587sm57lvlu0wlwkc3gw2sddy35au6esw589',
+          '0x0ba87f4374f7d9fe3ddf75b11439506b491a779a',
           300000,
           300000],
   sim  : ['http://localhost:5555',
          1,
          '447a392d41017c14ec0a1786fc46388f63e7865ec759d07bce0a0c6e2dc41b5c',
-         'zil1pw587sm57lvlu0wlwkc3gw2sddy35au6esw589',
+         '0x0ba87f4374f7d9fe3ddf75b11439506b491a779a',
          100000,
          100000]
 };
@@ -43,8 +43,8 @@ let network_id = '';
 const nodeVersion = 'v10.';
 const baseValue = '5'; // In ZIL
 const nonAdminPrivateKey = 'db11cfa086b92497c8ed5a4cc6edb3a5bfe3a640c43ffb9fc6aa0873c56f2ee3';
-const nonAdminAddress = getAddressFromPrivateKey(nonAdminPrivateKey).toLowerCase();
-const nonAdminAddressBech32 = 'zil10wemp699nulkrkdl7qu0ft459jhzan8g6r5lh7';
+//const nonAdminAddress = getAddressFromPrivateKey(nonAdminPrivateKey).toLowerCase();
+const nonAdminAddress = '0x7bb3b0e8a59f3f61d9bff038f4aeb42cae2ecce8';
 
 /**
  * Runs at start of suite
@@ -109,13 +109,14 @@ before(async function() {
 });
 
 /**
- * Runs before each test. Use it to reset back to a known state
+ * Runs before each test. Reset back to a known state
  */
 beforeEach(async function() {
-  
-  //Reset admin
-  await treasury_api.setSigningAddress(adminPrivateKey);
 
+  //Reset admin
+  treasury_api.setSigningAddress(adminPrivateKey); //@todo - we need to read the current admin and do look up for private key
+  resp = await treasury_api.changeAdmin(adminAddress);
+  expect(resp.success).to.be.true;
 
 });
 
@@ -198,49 +199,36 @@ describe('Treasury Smart Contract Tests', function() {
 
           exceptionCode = 'Int32 -1';
 
-          //make sure it is paused first
-          const receipt = await treasury_api.pauseContract();
+          const receipt = await treasury_api.pauseContract();         //make sure it is paused first
           expect(receipt.success).to.be.true;
-          //console.log(receipt);
-
           
-          // change txn signer to non adming...
-          await treasury_api.setSigningAddress(nonAdminPrivateKey)
-          // ...and attempt to unpause
-          const receipt2 = await treasury_api.unpauseContract();
+          await treasury_api.setSigningAddress(nonAdminPrivateKey)    // change txn signer to non adming...
+          const receipt2 = await treasury_api.unpauseContract();      // ...and attempt to unpause
           
           checkException(receipt2, exceptionCode);
 
-          // additional check
-          expect(receipt2.success).to.be.false;
+          expect(receipt2.success).to.be.false;                       // txn should have failed
           
         })
 
         it('should not allow pausing if not admin', async function() {
           
-          // we need to unpause the contract again first
-          const receipt1 = await treasury_api.unpauseContract();
-          expect(receipt1.success).to.be.true;
+          exceptionCode = 'Int32 -1';
 
-          // change signer to non admin
-          // note - do not need to change back as, beforeEach takes care of that for us.
-          await treasury_api.setSigningAddress(nonAdminPrivateKey)
+          const receipt = await treasury_api.unpauseContract();       //make sure it is unpaused first
+          expect(receipt.success).to.be.true;
+          
+          await treasury_api.setSigningAddress(nonAdminPrivateKey)    // change txn signer to non adming...
+          const receipt2 = await treasury_api.pauseContract();        // ...and attempt to unpause
+          
+          checkException(receipt2, exceptionCode);
 
-          /* This is very 'hacky' - need to extract out to an array walker */
-          const receipt2 = await treasury_api.pauseContract();
-          exceptions = receipt2.exceptions[0]['message'];
-          expect(exceptions).to.include('Int32 -1');  /* refer to contract for correct codes */
-
-          // not really needed, but good to check that txn failed.
-          expect(receipt2.success).to.be.false;
+          expect(receipt2.success).to.be.false;                       // txn should have failed
         })
         
       })
       describe('Admin Related Transitions', function() {
         it('should allow admin to change admin', async function() {
-
-          //make sure we are calling with current admin
-          zilliqa.wallet.addByPrivateKey(adminPrivateKey);
 
           // test invalid address fails
           const receipt1 = await treasury_api.changeAdmin("InvalidAddress");
@@ -249,9 +237,28 @@ describe('Treasury Smart Contract Tests', function() {
           // test valid address succeeds
           const receipt2 = await treasury_api.changeAdmin(nonAdminAddress);
           expect(receipt2.success).to.be.true; 
+
+          //reset back to original admin
+          await treasury_api.setSigningAddress(nonAdminPrivateKey)          
+          const receipt3 = await treasury_api.changeAdmin(adminAddress);
+
+          expect(receipt3.success).to.be.true;
         })
         
-        it.skip('should not allow changing admin if not admin', function() {})
+        it('should not allow changing admin if not admin', async function() {
+
+          exceptionCode = 'Int32 -1';          
+
+          await treasury_api.setSigningAddress(nonAdminPrivateKey)          // change txn signer to non admin...
+          const receipt2 = await treasury_api.changeAdmin(nonAdminAddress); // ...and attempt to change admin
+
+          //console.log(receipt2);
+
+          checkException(receipt2, exceptionCode);
+          
+          expect(receipt2.success).to.be.false;                             // txn should have failed
+        })
+
         it.skip('should allow admin to change company', function() {})
         it.skip('should not allow changing company if not admin', function() {})
       })
