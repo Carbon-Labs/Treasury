@@ -62,11 +62,13 @@ contract Treasury
 (* Mutable fields declaration *)
 
 field paused : Bool = True
-field under_funded : Bool = False
+field underFunded : Bool = False
 field admin : ByStr20 = init_admin
 field company : ByStr20 = init_company    (* Address of company that receives percentage of tokens distributed *)
-field token_price : Uint128 = builtin mul base_value tenpower12 (* Price (in ZIL) of a single token *)
-field zil_price : Uint128 = builtin div token base_value (* Price (in Token) of a single ZIL *)
+field tokenPrice : Uint128 = builtin mul base_value tenpower12 (* Price (in ZIL) of a single token *)
+field zilPrice : Uint128 = builtin div token base_value (* Price (in Token) of a single ZIL *)
+field tokenBalance : Uint128 = Uint128 0 (* Number of tokens held by contract *)
+
 
 
 

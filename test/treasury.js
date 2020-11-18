@@ -161,8 +161,13 @@ describe('Treasury Smart Contract Tests', function() {
     })
 
     it('should have correct base price', function() {
-      const bn_price = new BN(allState.token_price);
+      const bn_price = new BN(allState.tokenPrice);
       expect(bn_price).to.deep.equal(units.toQa(baseValue, units.Units.Zil))
+    })
+
+    it('should have 0 tokens', function() {
+      const num_tokens = allState.tokenBalance;
+      expect(num_tokens).to.equal('0')
     })
 
     it('should be "paused" on contract creation', function() {
@@ -170,7 +175,7 @@ describe('Treasury Smart Contract Tests', function() {
     })
 
     it('should not be "under funded" on contract creation', function() {
-      expect(allState.under_funded.constructor).to.equal('False')
+      expect(allState.underFunded.constructor).to.equal('False')
     })
 
   });
