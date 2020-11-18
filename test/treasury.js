@@ -261,17 +261,26 @@ describe('Treasury Smart Contract Tests', function() {
 
         it('should allow admin to change company', async function() {
           const receipt = await treasury_api.changeCompany(nonAdminAddress);
-          console.log(receipt);
+          //console.log(receipt);
           expect(receipt.success).to.be.true;
 
           //need to confirm that company address has been set correctly.
           const contractCompanyAddress = await treasury_api.getCompanyAddress();
-          console.log(contractCompanyAddress);
+          //console.log(contractCompanyAddress);
 
           expect(contractCompanyAddress).to.equal(nonAdminAddress);
 
         })
-        it.skip('should not allow changing company if not admin', function() {})
+        it('should not allow changing company if not admin', async function() {
+          exceptionCode = 'Int32 -1';          
+
+          await treasury_api.setSigningAddress(nonAdminPrivateKey)          // change txn signer to non admin...
+          const receipt = await treasury_api.changeCompany(nonAdminAddress); // ...and attempt to change admin
+
+          checkException(receipt, exceptionCode);
+          
+          expect(receipt.success).to.be.false;                             // txn should have failed
+        })
       })
       describe('Internal Functions', function() {
         it.skip('should recalculate exchange rates when receiving ZIL that is not for buying tokens', function() {})
