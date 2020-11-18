@@ -259,7 +259,16 @@ describe('Treasury Smart Contract Tests', function() {
           expect(receipt2.success).to.be.false;                             // txn should have failed
         })
 
-        it.skip('should allow admin to change company', function() {})
+        it('should allow admin to change company', async function() {
+          const receipt = await treasury_api.changeCompany(nonAdminAddress);
+          expect(receipt.success).to.be.true;
+
+          //need to confirm that company address has been set correctly.
+          const contractCompanyAddress = await treasury_api.getCompanyAddress();
+
+          expect(contractCompanyAddress).to.equal(nonAdminAddress);
+
+        })
         it.skip('should not allow changing company if not admin', function() {})
       })
       describe('Internal Functions', function() {

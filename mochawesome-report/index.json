@@ -3,14 +3,14 @@
     "suites": 10,
     "tests": 38,
     "passes": 13,
-    "pending": 25,
-    "failures": 0,
-    "start": "2020-11-16T04:10:50.179Z",
-    "end": "2020-11-16T04:10:54.438Z",
-    "duration": 4259,
+    "pending": 24,
+    "failures": 1,
+    "start": "2020-11-18T08:35:07.776Z",
+    "end": "2020-11-18T08:35:14.093Z",
+    "duration": 6317,
     "testsRegistered": 38,
-    "passPercent": 100,
-    "pendingPercent": 65.78947368421053,
+    "passPercent": 92.85714285714286,
+    "pendingPercent": 63.1578947368421,
     "other": 0,
     "hasOther": false,
     "skipped": 0,
@@ -18,7 +18,7 @@
   },
   "results": [
     {
-      "uuid": "c5ab4a85-6705-4e7e-9680-2e31a54c9651",
+      "uuid": "c5acf55b-b24f-440a-9147-10d203c87e30",
       "title": "",
       "fullFile": "",
       "file": "",
@@ -27,7 +27,7 @@
           "title": "\"before all\" hook in \"{root}\"",
           "fullTitle": "\"before all\" hook in \"{root}\"",
           "timedOut": false,
-          "duration": 928,
+          "duration": 1554,
           "state": null,
           "speed": null,
           "pass": false,
@@ -36,8 +36,8 @@
           "context": null,
           "code": "zilliqa = new Zilliqa(network);\nnetwork_id = await zilliqa.network.GetNetworkId();\n// Check that we are using correct address\nzilliqa.wallet.addByPrivateKey(adminPrivateKey);\naddress = getAddressFromPrivateKey(adminPrivateKey).toLowerCase();\nconst addressCheck = addressEqual(address, adminAddress);\nexpect(addressCheck).to.be.true;\n// Check address has at least 100 ZIL\nconst bal_obj = await zilliqa.blockchain.getBalance(address);\nconst balance_BN = new BN(bal_obj.result.balance);\nconst min_amount_BN = units.toQa(100, units.Units.Zil);\nlet ok = balance_BN.gte(min_amount_BN);\nexpect(ok).to.be.true;\n// Read contract address\nok = false;\ntry {\n  code = fs.readFileSync('contracts/treasury.scilla', 'utf-8');\n  ok = true;\n} catch (err) {\n  throw err \n}\nexpect(ok).to.be.true;\n// Deploy the contract\nthis.timeout(timeout_deploy);\nthis.slow(timeout_deploy / 2);\nconst MSG_VERSION = 1;\nconst VERSION = bytes.pack(chain_id, MSG_VERSION);\nconst myGasPrice = units.toQa('1000', units.Units.Li);\nconst init = [\n  { vname: '_scilla_version', type: 'Uint32', value: '0'},\n  { vname: 'init_admin', type:  'ByStr20', value: address },\n  { vname: 'init_company', type:  'ByStr20', value: address },\n  { vname: 'proxy_address', type:  'ByStr20', value: address },\n  { vname: 'token_address', type:  'ByStr20', value: address },\n  { vname: 'base_value', type:  'Uint128', value: baseValue }\n];\nconst contract = zilliqa.contracts.new(code, init);\n[deployTx, treasury] = await contract.deploy({\n  version: VERSION,\n  gasPrice: myGasPrice,\n  gasLimit: Long.fromNumber(15000),\n});\nconsole.log(\"Deployed Contract Address =\", treasury.address);\nexpect(deployTx.txParams.receipt.success).to.be.true;\ntreasury_api = new TreasuryAPI(treasury, chain_id);\nexpect(treasury_api).be.instanceOf(TreasuryAPI);",
           "err": {},
-          "uuid": "1fe17c2a-9ce4-46b6-8f17-36510a9773f8",
-          "parentUUID": "c5ab4a85-6705-4e7e-9680-2e31a54c9651",
+          "uuid": "e43d2bee-bc2b-4bd5-87d3-dde003c3b019",
+          "parentUUID": "c5acf55b-b24f-440a-9147-10d203c87e30",
           "isHook": true,
           "skipped": false
         },
@@ -45,7 +45,7 @@
           "title": "\"before each\" hook in \"{root}\"",
           "fullTitle": "\"before each\" hook in \"{root}\"",
           "timedOut": false,
-          "duration": 159,
+          "duration": 160,
           "state": null,
           "speed": null,
           "pass": false,
@@ -54,8 +54,8 @@
           "context": null,
           "code": "//Reset admin\n  treasury_api.setSigningAddress(adminPrivateKey); //@todo - we need to read the current admin and do look up for private key\n  resp = await treasury_api.changeAdmin(adminAddress);\n  expect(resp.success).to.be.true;",
           "err": {},
-          "uuid": "dfe52b71-7f26-4291-aa3b-c471cb0bacba",
-          "parentUUID": "c5ab4a85-6705-4e7e-9680-2e31a54c9651",
+          "uuid": "48088a52-67c5-441a-a096-c724cdace72a",
+          "parentUUID": "c5acf55b-b24f-440a-9147-10d203c87e30",
           "isHook": true,
           "skipped": false
         }
@@ -64,7 +64,7 @@
       "tests": [],
       "suites": [
         {
-          "uuid": "ee763042-d774-4059-98bf-db7626f162b4",
+          "uuid": "5d1c7f06-b96d-423e-93bb-b98a64824c2f",
           "title": "Treasury Smart Contract Tests",
           "fullFile": "/Users/adam/OFFICE/CRYPTO/GenesysLabs/Treasury/test/treasury.js",
           "file": "/test/treasury.js",
@@ -73,7 +73,7 @@
           "tests": [],
           "suites": [
             {
-              "uuid": "f64cd1ff-b5ff-4868-97bb-a10aa3e5a9f5",
+              "uuid": "b46ad400-d4db-4b8e-a479-fa130e153185",
               "title": "Connect to Zilliqa Blockchain",
               "fullFile": "/Users/adam/OFFICE/CRYPTO/GenesysLabs/Treasury/test/treasury.js",
               "file": "/test/treasury.js",
@@ -93,8 +93,8 @@
                   "context": null,
                   "code": "const node_version = process.version;\nconst nodeVersionCheck = (node_version.substring(0,4) == nodeVersion);\nexpect(nodeVersionCheck).to.be.true;",
                   "err": {},
-                  "uuid": "2c61b6af-5b53-402a-ac46-8859b9fba3a2",
-                  "parentUUID": "f64cd1ff-b5ff-4868-97bb-a10aa3e5a9f5",
+                  "uuid": "4bf8e837-fe0a-4c97-b406-1eb43543ca01",
+                  "parentUUID": "b46ad400-d4db-4b8e-a479-fa130e153185",
                   "isHook": false,
                   "skipped": false
                 },
@@ -111,16 +111,16 @@
                   "context": null,
                   "code": "const id = parseInt(network_id.result)\nexpect(id).to.equal(chain_id)",
                   "err": {},
-                  "uuid": "0efe7309-c10b-4aef-ad6f-73714a6cfda6",
-                  "parentUUID": "f64cd1ff-b5ff-4868-97bb-a10aa3e5a9f5",
+                  "uuid": "2e3e332e-fa35-4d78-a87e-667df1a93040",
+                  "parentUUID": "b46ad400-d4db-4b8e-a479-fa130e153185",
                   "isHook": false,
                   "skipped": false
                 }
               ],
               "suites": [],
               "passes": [
-                "2c61b6af-5b53-402a-ac46-8859b9fba3a2",
-                "0efe7309-c10b-4aef-ad6f-73714a6cfda6"
+                "4bf8e837-fe0a-4c97-b406-1eb43543ca01",
+                "2e3e332e-fa35-4d78-a87e-667df1a93040"
               ],
               "failures": [],
               "pending": [],
@@ -131,7 +131,7 @@
               "_timeout": 2000
             },
             {
-              "uuid": "3bb78452-2d7e-4015-8d59-1d7c4ecbbf9e",
+              "uuid": "11f4f0bc-857b-46f8-bf61-afd2226d44aa",
               "title": "Deployment Checks",
               "fullFile": "/Users/adam/OFFICE/CRYPTO/GenesysLabs/Treasury/test/treasury.js",
               "file": "/test/treasury.js",
@@ -142,7 +142,7 @@
                   "title": "should have correct admin address",
                   "fullTitle": "Treasury Smart Contract Tests Deployment Checks should have correct admin address",
                   "timedOut": false,
-                  "duration": 11,
+                  "duration": 22,
                   "state": "passed",
                   "speed": "fast",
                   "pass": true,
@@ -151,8 +151,8 @@
                   "context": null,
                   "code": "allState = await treasury.getState();\nexpect(allState.admin).to.equal(address)",
                   "err": {},
-                  "uuid": "f86beaf7-2f60-4061-bbcf-57fc5c587246",
-                  "parentUUID": "3bb78452-2d7e-4015-8d59-1d7c4ecbbf9e",
+                  "uuid": "b4a9c96b-85a8-41cf-ac42-01ff6de26878",
+                  "parentUUID": "11f4f0bc-857b-46f8-bf61-afd2226d44aa",
                   "isHook": false,
                   "skipped": false
                 },
@@ -169,8 +169,8 @@
                   "context": null,
                   "code": "expect(allState.company).to.equal(address)",
                   "err": {},
-                  "uuid": "ca1cf987-9c42-4a38-a649-05de42129599",
-                  "parentUUID": "3bb78452-2d7e-4015-8d59-1d7c4ecbbf9e",
+                  "uuid": "e352260b-ea82-4cbd-8975-b9911778204f",
+                  "parentUUID": "11f4f0bc-857b-46f8-bf61-afd2226d44aa",
                   "isHook": false,
                   "skipped": false
                 },
@@ -187,8 +187,8 @@
                   "context": null,
                   "code": "const bn_price = new BN(allState.token_price);\nexpect(bn_price).to.deep.equal(units.toQa(baseValue, units.Units.Zil))",
                   "err": {},
-                  "uuid": "b28a0b94-e42c-4163-b27c-a73e21d8cc46",
-                  "parentUUID": "3bb78452-2d7e-4015-8d59-1d7c4ecbbf9e",
+                  "uuid": "bf965189-8020-4ba7-bd40-a6b098ac4efa",
+                  "parentUUID": "11f4f0bc-857b-46f8-bf61-afd2226d44aa",
                   "isHook": false,
                   "skipped": false
                 },
@@ -205,8 +205,8 @@
                   "context": null,
                   "code": "expect(allState.paused.constructor).to.equal('True')",
                   "err": {},
-                  "uuid": "d1e03eaa-2431-466a-a782-3070ba4a0849",
-                  "parentUUID": "3bb78452-2d7e-4015-8d59-1d7c4ecbbf9e",
+                  "uuid": "bc63f0fb-24e7-4e43-9060-6ffc31be0c0d",
+                  "parentUUID": "11f4f0bc-857b-46f8-bf61-afd2226d44aa",
                   "isHook": false,
                   "skipped": false
                 },
@@ -223,30 +223,30 @@
                   "context": null,
                   "code": "expect(allState.under_funded.constructor).to.equal('False')",
                   "err": {},
-                  "uuid": "1c8c9284-ab77-421f-9f1a-d350fcfca057",
-                  "parentUUID": "3bb78452-2d7e-4015-8d59-1d7c4ecbbf9e",
+                  "uuid": "a7a712e3-983b-49e8-8e18-ef07171d240e",
+                  "parentUUID": "11f4f0bc-857b-46f8-bf61-afd2226d44aa",
                   "isHook": false,
                   "skipped": false
                 }
               ],
               "suites": [],
               "passes": [
-                "f86beaf7-2f60-4061-bbcf-57fc5c587246",
-                "ca1cf987-9c42-4a38-a649-05de42129599",
-                "b28a0b94-e42c-4163-b27c-a73e21d8cc46",
-                "d1e03eaa-2431-466a-a782-3070ba4a0849",
-                "1c8c9284-ab77-421f-9f1a-d350fcfca057"
+                "b4a9c96b-85a8-41cf-ac42-01ff6de26878",
+                "e352260b-ea82-4cbd-8975-b9911778204f",
+                "bf965189-8020-4ba7-bd40-a6b098ac4efa",
+                "bc63f0fb-24e7-4e43-9060-6ffc31be0c0d",
+                "a7a712e3-983b-49e8-8e18-ef07171d240e"
               ],
               "failures": [],
               "pending": [],
               "skipped": [],
-              "duration": 17,
+              "duration": 28,
               "root": false,
               "rootEmpty": false,
               "_timeout": 2000
             },
             {
-              "uuid": "79f47d13-df4f-47ef-922a-4e1e5f5c563e",
+              "uuid": "bb30bf94-bcc9-4b29-bfea-5e692d4dcd74",
               "title": "Contract Tests",
               "fullFile": "/Users/adam/OFFICE/CRYPTO/GenesysLabs/Treasury/test/treasury.js",
               "file": "/test/treasury.js",
@@ -255,7 +255,7 @@
               "tests": [],
               "suites": [
                 {
-                  "uuid": "028744ce-eaae-4c7d-9cb8-6bba75cdb5cf",
+                  "uuid": "0fd7dd56-7825-418f-bd22-4ed457f11ba9",
                   "title": "Management Functions",
                   "fullFile": "/Users/adam/OFFICE/CRYPTO/GenesysLabs/Treasury/test/treasury.js",
                   "file": "/test/treasury.js",
@@ -264,7 +264,7 @@
                   "tests": [],
                   "suites": [
                     {
-                      "uuid": "26f6e3e0-4dd2-4d29-9294-1457b14f7ffc",
+                      "uuid": "df61bfcc-768c-4e1c-8993-b1b9d45f8dc8",
                       "title": "Pausing Related Transitions",
                       "fullFile": "/Users/adam/OFFICE/CRYPTO/GenesysLabs/Treasury/test/treasury.js",
                       "file": "/test/treasury.js",
@@ -275,7 +275,7 @@
                           "title": "should allow admin to unpause when paused",
                           "fullTitle": "Treasury Smart Contract Tests Contract Tests Management Functions Pausing Related Transitions should allow admin to unpause when paused",
                           "timedOut": false,
-                          "duration": 102,
+                          "duration": 196,
                           "state": "passed",
                           "speed": "fast",
                           "pass": true,
@@ -284,8 +284,8 @@
                           "context": null,
                           "code": "const receipt = await treasury_api.unpauseContract();\nexpect(receipt.success).to.be.true;",
                           "err": {},
-                          "uuid": "f671d4ad-4b59-4ec3-8b40-2346dc0fd76e",
-                          "parentUUID": "26f6e3e0-4dd2-4d29-9294-1457b14f7ffc",
+                          "uuid": "511c14d1-6c56-4e22-bcd8-f5241b1c387e",
+                          "parentUUID": "df61bfcc-768c-4e1c-8993-b1b9d45f8dc8",
                           "isHook": false,
                           "skipped": false
                         },
@@ -293,7 +293,7 @@
                           "title": "should allow admin to pause when unpaused",
                           "fullTitle": "Treasury Smart Contract Tests Contract Tests Management Functions Pausing Related Transitions should allow admin to pause when unpaused",
                           "timedOut": false,
-                          "duration": 130,
+                          "duration": 140,
                           "state": "passed",
                           "speed": "fast",
                           "pass": true,
@@ -302,8 +302,8 @@
                           "context": null,
                           "code": "const receipt = await treasury_api.pauseContract();\nexpect(receipt.success).to.be.true;",
                           "err": {},
-                          "uuid": "c0c6ac9b-a707-4285-8fb0-888f07f4f1d0",
-                          "parentUUID": "26f6e3e0-4dd2-4d29-9294-1457b14f7ffc",
+                          "uuid": "2059a0b0-08a1-4d6f-8f53-7ba9fd76f7f4",
+                          "parentUUID": "df61bfcc-768c-4e1c-8993-b1b9d45f8dc8",
                           "isHook": false,
                           "skipped": false
                         },
@@ -311,7 +311,7 @@
                           "title": "should not allow unpausing if not admin",
                           "fullTitle": "Treasury Smart Contract Tests Contract Tests Management Functions Pausing Related Transitions should not allow unpausing if not admin",
                           "timedOut": false,
-                          "duration": 243,
+                          "duration": 354,
                           "state": "passed",
                           "speed": "fast",
                           "pass": true,
@@ -320,8 +320,8 @@
                           "context": null,
                           "code": "exceptionCode = 'Int32 -1';\n          const receipt = await treasury_api.pauseContract();         //make sure it is paused first\n          expect(receipt.success).to.be.true;\n          \n          await treasury_api.setSigningAddress(nonAdminPrivateKey)    // change txn signer to non adming...\n          const receipt2 = await treasury_api.unpauseContract();      // ...and attempt to unpause\n          \n          checkException(receipt2, exceptionCode);\n          expect(receipt2.success).to.be.false;                       // txn should have failed",
                           "err": {},
-                          "uuid": "9310af05-8b3d-4cf6-be33-b9f500d760ab",
-                          "parentUUID": "26f6e3e0-4dd2-4d29-9294-1457b14f7ffc",
+                          "uuid": "9fde6304-8f4f-44a8-9c33-723a49cd4776",
+                          "parentUUID": "df61bfcc-768c-4e1c-8993-b1b9d45f8dc8",
                           "isHook": false,
                           "skipped": false
                         },
@@ -329,7 +329,7 @@
                           "title": "should not allow pausing if not admin",
                           "fullTitle": "Treasury Smart Contract Tests Contract Tests Management Functions Pausing Related Transitions should not allow pausing if not admin",
                           "timedOut": false,
-                          "duration": 232,
+                          "duration": 312,
                           "state": "passed",
                           "speed": "fast",
                           "pass": true,
@@ -338,29 +338,29 @@
                           "context": null,
                           "code": "exceptionCode = 'Int32 -1';\nconst receipt = await treasury_api.unpauseContract();       //make sure it is unpaused first\nexpect(receipt.success).to.be.true;\n\nawait treasury_api.setSigningAddress(nonAdminPrivateKey)    // change txn signer to non adming...\nconst receipt2 = await treasury_api.pauseContract();        // ...and attempt to unpause\n\ncheckException(receipt2, exceptionCode);\nexpect(receipt2.success).to.be.false;                       // txn should have failed",
                           "err": {},
-                          "uuid": "050c618b-f155-41f3-983c-ba60744a269a",
-                          "parentUUID": "26f6e3e0-4dd2-4d29-9294-1457b14f7ffc",
+                          "uuid": "44ec9708-99a4-4dce-82a0-60ca39ca2ca4",
+                          "parentUUID": "df61bfcc-768c-4e1c-8993-b1b9d45f8dc8",
                           "isHook": false,
                           "skipped": false
                         }
                       ],
                       "suites": [],
                       "passes": [
-                        "f671d4ad-4b59-4ec3-8b40-2346dc0fd76e",
-                        "c0c6ac9b-a707-4285-8fb0-888f07f4f1d0",
-                        "9310af05-8b3d-4cf6-be33-b9f500d760ab",
-                        "050c618b-f155-41f3-983c-ba60744a269a"
+                        "511c14d1-6c56-4e22-bcd8-f5241b1c387e",
+                        "2059a0b0-08a1-4d6f-8f53-7ba9fd76f7f4",
+                        "9fde6304-8f4f-44a8-9c33-723a49cd4776",
+                        "44ec9708-99a4-4dce-82a0-60ca39ca2ca4"
                       ],
                       "failures": [],
                       "pending": [],
                       "skipped": [],
-                      "duration": 707,
+                      "duration": 1002,
                       "root": false,
                       "rootEmpty": false,
                       "_timeout": 100000
                     },
                     {
-                      "uuid": "53e725c9-5d84-485c-96ad-3a9694969515",
+                      "uuid": "4c5b69fd-5adc-4200-a54f-02e71eb217de",
                       "title": "Admin Related Transitions",
                       "fullFile": "/Users/adam/OFFICE/CRYPTO/GenesysLabs/Treasury/test/treasury.js",
                       "file": "/test/treasury.js",
@@ -371,7 +371,7 @@
                           "title": "should allow admin to change admin",
                           "fullTitle": "Treasury Smart Contract Tests Contract Tests Management Functions Admin Related Transitions should allow admin to change admin",
                           "timedOut": false,
-                          "duration": 275,
+                          "duration": 433,
                           "state": "passed",
                           "speed": "fast",
                           "pass": true,
@@ -380,8 +380,8 @@
                           "context": null,
                           "code": "// test invalid address fails\n          const receipt1 = await treasury_api.changeAdmin(\"InvalidAddress\");\n          expect(receipt1.success).to.be.false;\n          // test valid address succeeds\n          const receipt2 = await treasury_api.changeAdmin(nonAdminAddress);\n          expect(receipt2.success).to.be.true; \n          //reset back to original admin\n          await treasury_api.setSigningAddress(nonAdminPrivateKey)          \n          const receipt3 = await treasury_api.changeAdmin(adminAddress);\n          expect(receipt3.success).to.be.true;",
                           "err": {},
-                          "uuid": "8b1096a1-e93c-4a34-851e-5dfecf165dad",
-                          "parentUUID": "53e725c9-5d84-485c-96ad-3a9694969515",
+                          "uuid": "5cc1220b-d3eb-48aa-80ca-33da2f30b559",
+                          "parentUUID": "4c5b69fd-5adc-4200-a54f-02e71eb217de",
                           "isHook": false,
                           "skipped": false
                         },
@@ -389,7 +389,7 @@
                           "title": "should not allow changing admin if not admin",
                           "fullTitle": "Treasury Smart Contract Tests Contract Tests Management Functions Admin Related Transitions should not allow changing admin if not admin",
                           "timedOut": false,
-                          "duration": 129,
+                          "duration": 150,
                           "state": "passed",
                           "speed": "fast",
                           "pass": true,
@@ -398,8 +398,8 @@
                           "context": null,
                           "code": "exceptionCode = 'Int32 -1';          \n          await treasury_api.setSigningAddress(nonAdminPrivateKey)          // change txn signer to non admin...\n          const receipt2 = await treasury_api.changeAdmin(nonAdminAddress); // ...and attempt to change admin\n          //console.log(receipt2);\n          checkException(receipt2, exceptionCode);\n          \n          expect(receipt2.success).to.be.false;                             // txn should have failed",
                           "err": {},
-                          "uuid": "257b043d-03ac-4a4f-b63b-6da38702aee5",
-                          "parentUUID": "53e725c9-5d84-485c-96ad-3a9694969515",
+                          "uuid": "67c5a69c-e8dc-4d2a-b7c8-3032862956db",
+                          "parentUUID": "4c5b69fd-5adc-4200-a54f-02e71eb217de",
                           "isHook": false,
                           "skipped": false
                         },
@@ -407,17 +407,21 @@
                           "title": "should allow admin to change company",
                           "fullTitle": "Treasury Smart Contract Tests Contract Tests Management Functions Admin Related Transitions should allow admin to change company",
                           "timedOut": false,
-                          "duration": 0,
-                          "state": "pending",
+                          "duration": 2,
+                          "state": "failed",
                           "speed": null,
                           "pass": false,
-                          "fail": false,
-                          "pending": true,
+                          "fail": true,
+                          "pending": false,
                           "context": null,
-                          "code": "",
-                          "err": {},
-                          "uuid": "e4ca4e5d-4e45-4341-93c7-f38a1db22698",
-                          "parentUUID": "53e725c9-5d84-485c-96ad-3a9694969515",
+                          "code": "const receipt = await treasury_api.changeCompany(nonAdminAddress);\nexpect(receipt.success).to.be.true;\n//need to confirm that company address has been set correctly.\nconst contractCompanyAddress = await treasury_api.getCompanyAddress();\nexpect(contractCompanyAddress).to.equal(nonAdminAddress);",
+                          "err": {
+                            "message": "TypeError: treasury_api.changeCompany is not a function",
+                            "estack": "TypeError: treasury_api.changeCompany is not a function\n    at Context.<anonymous> (test/treasury.js:263:46)",
+                            "diff": null
+                          },
+                          "uuid": "2e6f0c1f-383f-47db-ac61-6e4389ab0097",
+                          "parentUUID": "4c5b69fd-5adc-4200-a54f-02e71eb217de",
                           "isHook": false,
                           "skipped": false
                         },
@@ -434,30 +438,31 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "aed9440e-7cee-4c8f-bcb1-e425dbb0e8a0",
-                          "parentUUID": "53e725c9-5d84-485c-96ad-3a9694969515",
+                          "uuid": "bc62c659-5c77-4264-aba9-6035beeb2cc8",
+                          "parentUUID": "4c5b69fd-5adc-4200-a54f-02e71eb217de",
                           "isHook": false,
                           "skipped": false
                         }
                       ],
                       "suites": [],
                       "passes": [
-                        "8b1096a1-e93c-4a34-851e-5dfecf165dad",
-                        "257b043d-03ac-4a4f-b63b-6da38702aee5"
+                        "5cc1220b-d3eb-48aa-80ca-33da2f30b559",
+                        "67c5a69c-e8dc-4d2a-b7c8-3032862956db"
                       ],
-                      "failures": [],
+                      "failures": [
+                        "2e6f0c1f-383f-47db-ac61-6e4389ab0097"
+                      ],
                       "pending": [
-                        "e4ca4e5d-4e45-4341-93c7-f38a1db22698",
-                        "aed9440e-7cee-4c8f-bcb1-e425dbb0e8a0"
+                        "bc62c659-5c77-4264-aba9-6035beeb2cc8"
                       ],
                       "skipped": [],
-                      "duration": 404,
+                      "duration": 585,
                       "root": false,
                       "rootEmpty": false,
                       "_timeout": 100000
                     },
                     {
-                      "uuid": "76e9f3c8-2f62-45c9-acad-a4425b409ded",
+                      "uuid": "40914fd6-764f-43fb-8b8c-0c0a81ab481f",
                       "title": "Internal Functions",
                       "fullFile": "/Users/adam/OFFICE/CRYPTO/GenesysLabs/Treasury/test/treasury.js",
                       "file": "/test/treasury.js",
@@ -477,8 +482,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "0cf715f4-58b7-4dc1-b09f-1b6a92070268",
-                          "parentUUID": "76e9f3c8-2f62-45c9-acad-a4425b409ded",
+                          "uuid": "c6ee1e97-ef7c-471f-bdd3-a91b10ff55f7",
+                          "parentUUID": "40914fd6-764f-43fb-8b8c-0c0a81ab481f",
                           "isHook": false,
                           "skipped": false
                         },
@@ -495,8 +500,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "7b6bffbd-571e-4aab-b6e4-4c3e232ddf54",
-                          "parentUUID": "76e9f3c8-2f62-45c9-acad-a4425b409ded",
+                          "uuid": "f4df2291-28ba-4154-ba99-368560a76767",
+                          "parentUUID": "40914fd6-764f-43fb-8b8c-0c0a81ab481f",
                           "isHook": false,
                           "skipped": false
                         }
@@ -505,8 +510,8 @@
                       "passes": [],
                       "failures": [],
                       "pending": [
-                        "0cf715f4-58b7-4dc1-b09f-1b6a92070268",
-                        "7b6bffbd-571e-4aab-b6e4-4c3e232ddf54"
+                        "c6ee1e97-ef7c-471f-bdd3-a91b10ff55f7",
+                        "f4df2291-28ba-4154-ba99-368560a76767"
                       ],
                       "skipped": [],
                       "duration": 0,
@@ -515,7 +520,7 @@
                       "_timeout": 100000
                     },
                     {
-                      "uuid": "dabaffec-01a1-40bc-b084-d5066176ec23",
+                      "uuid": "f5def110-f543-4695-9652-69ccdacd9c72",
                       "title": "Trading Features",
                       "fullFile": "/Users/adam/OFFICE/CRYPTO/GenesysLabs/Treasury/test/treasury.js",
                       "file": "/test/treasury.js",
@@ -535,8 +540,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "ced0e853-175d-43ce-8bc0-9f9f69f36414",
-                          "parentUUID": "dabaffec-01a1-40bc-b084-d5066176ec23",
+                          "uuid": "e8137989-b0d6-47b6-98cf-bd2b0991d0b2",
+                          "parentUUID": "f5def110-f543-4695-9652-69ccdacd9c72",
                           "isHook": false,
                           "skipped": false
                         },
@@ -553,8 +558,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "73ff5b22-1ed6-48a2-8624-4c653098618b",
-                          "parentUUID": "dabaffec-01a1-40bc-b084-d5066176ec23",
+                          "uuid": "6365fa19-53d6-4281-9289-7bd500ed78b7",
+                          "parentUUID": "f5def110-f543-4695-9652-69ccdacd9c72",
                           "isHook": false,
                           "skipped": false
                         },
@@ -571,8 +576,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "ca4b5d73-58a7-481e-8068-c8f36c60d669",
-                          "parentUUID": "dabaffec-01a1-40bc-b084-d5066176ec23",
+                          "uuid": "eefeb0b3-ea08-4e42-bd62-00094d24329f",
+                          "parentUUID": "f5def110-f543-4695-9652-69ccdacd9c72",
                           "isHook": false,
                           "skipped": false
                         },
@@ -589,8 +594,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "221b7edc-83d4-442d-8e62-7b3371e321cd",
-                          "parentUUID": "dabaffec-01a1-40bc-b084-d5066176ec23",
+                          "uuid": "2b50d740-749b-4119-a5ed-e58836615e01",
+                          "parentUUID": "f5def110-f543-4695-9652-69ccdacd9c72",
                           "isHook": false,
                           "skipped": false
                         },
@@ -607,8 +612,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "62cd282c-23b3-43e3-9ec4-89e2cd973c15",
-                          "parentUUID": "dabaffec-01a1-40bc-b084-d5066176ec23",
+                          "uuid": "1c693d90-dc60-45a6-a8be-e6a4b37532c4",
+                          "parentUUID": "f5def110-f543-4695-9652-69ccdacd9c72",
                           "isHook": false,
                           "skipped": false
                         },
@@ -625,8 +630,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "78bfbf86-939d-4cc6-9af4-eee48a9533c3",
-                          "parentUUID": "dabaffec-01a1-40bc-b084-d5066176ec23",
+                          "uuid": "a43a8413-55e2-4e76-b053-300eeb95ea19",
+                          "parentUUID": "f5def110-f543-4695-9652-69ccdacd9c72",
                           "isHook": false,
                           "skipped": false
                         },
@@ -643,8 +648,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "fb23af5a-a0b2-4af2-8ea7-6c87eb0b2098",
-                          "parentUUID": "dabaffec-01a1-40bc-b084-d5066176ec23",
+                          "uuid": "6823b077-0e73-4d64-bedd-db22b087d723",
+                          "parentUUID": "f5def110-f543-4695-9652-69ccdacd9c72",
                           "isHook": false,
                           "skipped": false
                         }
@@ -653,13 +658,13 @@
                       "passes": [],
                       "failures": [],
                       "pending": [
-                        "ced0e853-175d-43ce-8bc0-9f9f69f36414",
-                        "73ff5b22-1ed6-48a2-8624-4c653098618b",
-                        "ca4b5d73-58a7-481e-8068-c8f36c60d669",
-                        "221b7edc-83d4-442d-8e62-7b3371e321cd",
-                        "62cd282c-23b3-43e3-9ec4-89e2cd973c15",
-                        "78bfbf86-939d-4cc6-9af4-eee48a9533c3",
-                        "fb23af5a-a0b2-4af2-8ea7-6c87eb0b2098"
+                        "e8137989-b0d6-47b6-98cf-bd2b0991d0b2",
+                        "6365fa19-53d6-4281-9289-7bd500ed78b7",
+                        "eefeb0b3-ea08-4e42-bd62-00094d24329f",
+                        "2b50d740-749b-4119-a5ed-e58836615e01",
+                        "1c693d90-dc60-45a6-a8be-e6a4b37532c4",
+                        "a43a8413-55e2-4e76-b053-300eeb95ea19",
+                        "6823b077-0e73-4d64-bedd-db22b087d723"
                       ],
                       "skipped": [],
                       "duration": 0,
@@ -668,7 +673,7 @@
                       "_timeout": 100000
                     },
                     {
-                      "uuid": "de44602b-c9a9-40c7-a3a9-e23f0c8ed772",
+                      "uuid": "e9adde1d-79d6-43dd-a9c2-0620ca2ec7bc",
                       "title": "Invoicing Features",
                       "fullFile": "/Users/adam/OFFICE/CRYPTO/GenesysLabs/Treasury/test/treasury.js",
                       "file": "/test/treasury.js",
@@ -688,8 +693,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "d6ee0165-65fc-4914-8f69-ab9b28f6e62f",
-                          "parentUUID": "de44602b-c9a9-40c7-a3a9-e23f0c8ed772",
+                          "uuid": "941ecde9-bdca-4c62-a933-f1eee5ce124c",
+                          "parentUUID": "e9adde1d-79d6-43dd-a9c2-0620ca2ec7bc",
                           "isHook": false,
                           "skipped": false
                         },
@@ -706,8 +711,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "0ab5112a-e6e5-468e-8f92-436128d16e24",
-                          "parentUUID": "de44602b-c9a9-40c7-a3a9-e23f0c8ed772",
+                          "uuid": "b5b181cb-826b-495b-92d2-40397180d4f2",
+                          "parentUUID": "e9adde1d-79d6-43dd-a9c2-0620ca2ec7bc",
                           "isHook": false,
                           "skipped": false
                         },
@@ -724,8 +729,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "414f2f45-f545-4fa0-8ab3-457b7de1e4d3",
-                          "parentUUID": "de44602b-c9a9-40c7-a3a9-e23f0c8ed772",
+                          "uuid": "c35c7b6e-425c-4ac3-96d4-108f2ca0852d",
+                          "parentUUID": "e9adde1d-79d6-43dd-a9c2-0620ca2ec7bc",
                           "isHook": false,
                           "skipped": false
                         },
@@ -742,8 +747,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "6a413183-8b64-418e-b180-97dbadbe089a",
-                          "parentUUID": "de44602b-c9a9-40c7-a3a9-e23f0c8ed772",
+                          "uuid": "6504981c-b34f-4287-b53b-695006ba95ea",
+                          "parentUUID": "e9adde1d-79d6-43dd-a9c2-0620ca2ec7bc",
                           "isHook": false,
                           "skipped": false
                         },
@@ -760,8 +765,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "09e4d9cc-f0f6-491d-a4f9-40aae32c6c55",
-                          "parentUUID": "de44602b-c9a9-40c7-a3a9-e23f0c8ed772",
+                          "uuid": "47152da8-322a-4d03-8d02-1eee32bfc8fa",
+                          "parentUUID": "e9adde1d-79d6-43dd-a9c2-0620ca2ec7bc",
                           "isHook": false,
                           "skipped": false
                         },
@@ -778,8 +783,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "0c908202-e60c-4d28-a232-6b7fd6cda318",
-                          "parentUUID": "de44602b-c9a9-40c7-a3a9-e23f0c8ed772",
+                          "uuid": "f373f09b-ecdb-4bc4-9292-13b0ae7eab9a",
+                          "parentUUID": "e9adde1d-79d6-43dd-a9c2-0620ca2ec7bc",
                           "isHook": false,
                           "skipped": false
                         },
@@ -796,8 +801,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "fcfc554a-7c28-45d4-8752-fd96b93dddf8",
-                          "parentUUID": "de44602b-c9a9-40c7-a3a9-e23f0c8ed772",
+                          "uuid": "4b277c36-2d1e-496c-bf67-b3c4246bd52a",
+                          "parentUUID": "e9adde1d-79d6-43dd-a9c2-0620ca2ec7bc",
                           "isHook": false,
                           "skipped": false
                         },
@@ -814,8 +819,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "037c3b61-224b-4dc2-864d-0f7c13157ea6",
-                          "parentUUID": "de44602b-c9a9-40c7-a3a9-e23f0c8ed772",
+                          "uuid": "0b64a4c9-7ef5-4882-bcee-1144677c13a6",
+                          "parentUUID": "e9adde1d-79d6-43dd-a9c2-0620ca2ec7bc",
                           "isHook": false,
                           "skipped": false
                         },
@@ -832,8 +837,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "bd4946ee-b0f0-425b-8775-12a836dedc22",
-                          "parentUUID": "de44602b-c9a9-40c7-a3a9-e23f0c8ed772",
+                          "uuid": "d6160c11-cf56-4e2b-96fa-97cfd77032ca",
+                          "parentUUID": "e9adde1d-79d6-43dd-a9c2-0620ca2ec7bc",
                           "isHook": false,
                           "skipped": false
                         },
@@ -850,8 +855,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "10382b47-7989-4f46-bc75-435b137ec6db",
-                          "parentUUID": "de44602b-c9a9-40c7-a3a9-e23f0c8ed772",
+                          "uuid": "c130098b-c98a-4015-8568-71bfd028fd03",
+                          "parentUUID": "e9adde1d-79d6-43dd-a9c2-0620ca2ec7bc",
                           "isHook": false,
                           "skipped": false
                         },
@@ -868,8 +873,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "ed5f4565-a34f-4108-ba47-e5d59a1d1802",
-                          "parentUUID": "de44602b-c9a9-40c7-a3a9-e23f0c8ed772",
+                          "uuid": "3ce73cc4-cbe7-4055-9404-fd299ef29693",
+                          "parentUUID": "e9adde1d-79d6-43dd-a9c2-0620ca2ec7bc",
                           "isHook": false,
                           "skipped": false
                         },
@@ -886,8 +891,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "5dd65658-fd71-44d1-bfd3-f4111d23bd88",
-                          "parentUUID": "de44602b-c9a9-40c7-a3a9-e23f0c8ed772",
+                          "uuid": "1e00fcd0-b011-4432-9cd9-72e83fa1a653",
+                          "parentUUID": "e9adde1d-79d6-43dd-a9c2-0620ca2ec7bc",
                           "isHook": false,
                           "skipped": false
                         },
@@ -904,8 +909,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "9ef95767-9c4f-4c0c-9a97-e39b320359d8",
-                          "parentUUID": "de44602b-c9a9-40c7-a3a9-e23f0c8ed772",
+                          "uuid": "4b5c8339-63cf-4cfb-b543-f28ba6ee0a06",
+                          "parentUUID": "e9adde1d-79d6-43dd-a9c2-0620ca2ec7bc",
                           "isHook": false,
                           "skipped": false
                         },
@@ -922,8 +927,8 @@
                           "context": null,
                           "code": "",
                           "err": {},
-                          "uuid": "e8614003-1b21-4c20-a3d6-ea0ee5981009",
-                          "parentUUID": "de44602b-c9a9-40c7-a3a9-e23f0c8ed772",
+                          "uuid": "b19f9537-417b-4b68-9f8a-c37105da0408",
+                          "parentUUID": "e9adde1d-79d6-43dd-a9c2-0620ca2ec7bc",
                           "isHook": false,
                           "skipped": false
                         }
@@ -932,20 +937,20 @@
                       "passes": [],
                       "failures": [],
                       "pending": [
-                        "d6ee0165-65fc-4914-8f69-ab9b28f6e62f",
-                        "0ab5112a-e6e5-468e-8f92-436128d16e24",
-                        "414f2f45-f545-4fa0-8ab3-457b7de1e4d3",
-                        "6a413183-8b64-418e-b180-97dbadbe089a",
-                        "09e4d9cc-f0f6-491d-a4f9-40aae32c6c55",
-                        "0c908202-e60c-4d28-a232-6b7fd6cda318",
-                        "fcfc554a-7c28-45d4-8752-fd96b93dddf8",
-                        "037c3b61-224b-4dc2-864d-0f7c13157ea6",
-                        "bd4946ee-b0f0-425b-8775-12a836dedc22",
-                        "10382b47-7989-4f46-bc75-435b137ec6db",
-                        "ed5f4565-a34f-4108-ba47-e5d59a1d1802",
-                        "5dd65658-fd71-44d1-bfd3-f4111d23bd88",
-                        "9ef95767-9c4f-4c0c-9a97-e39b320359d8",
-                        "e8614003-1b21-4c20-a3d6-ea0ee5981009"
+                        "941ecde9-bdca-4c62-a933-f1eee5ce124c",
+                        "b5b181cb-826b-495b-92d2-40397180d4f2",
+                        "c35c7b6e-425c-4ac3-96d4-108f2ca0852d",
+                        "6504981c-b34f-4287-b53b-695006ba95ea",
+                        "47152da8-322a-4d03-8d02-1eee32bfc8fa",
+                        "f373f09b-ecdb-4bc4-9292-13b0ae7eab9a",
+                        "4b277c36-2d1e-496c-bf67-b3c4246bd52a",
+                        "0b64a4c9-7ef5-4882-bcee-1144677c13a6",
+                        "d6160c11-cf56-4e2b-96fa-97cfd77032ca",
+                        "c130098b-c98a-4015-8568-71bfd028fd03",
+                        "3ce73cc4-cbe7-4055-9404-fd299ef29693",
+                        "1e00fcd0-b011-4432-9cd9-72e83fa1a653",
+                        "4b5c8339-63cf-4cfb-b543-f28ba6ee0a06",
+                        "b19f9537-417b-4b68-9f8a-c37105da0408"
                       ],
                       "skipped": [],
                       "duration": 0,
