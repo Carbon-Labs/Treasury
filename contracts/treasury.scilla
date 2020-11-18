@@ -175,6 +175,16 @@ transition ChangeAdmin(newAdminAddress : ByStr20)
 
 end  
 
+transition ChangeCompany(newCompanyAddress : ByStr20)
+  (* Conditional checks *)
+  isAdmin;
+
+  company := newCompanyAddress;
+  e = {_eventname : "Change Company"};
+  event e
+
+end  
+
 transition buyTokens() 
   accept
 

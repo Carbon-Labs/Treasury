@@ -261,10 +261,12 @@ describe('Treasury Smart Contract Tests', function() {
 
         it('should allow admin to change company', async function() {
           const receipt = await treasury_api.changeCompany(nonAdminAddress);
+          console.log(receipt);
           expect(receipt.success).to.be.true;
 
           //need to confirm that company address has been set correctly.
           const contractCompanyAddress = await treasury_api.getCompanyAddress();
+          console.log(contractCompanyAddress);
 
           expect(contractCompanyAddress).to.equal(nonAdminAddress);
 
