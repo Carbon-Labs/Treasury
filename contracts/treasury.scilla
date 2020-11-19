@@ -188,11 +188,15 @@ transition ChangeCompany(newCompanyAddress : ByStr20)
 end  
 
 transition buyTokens() 
+  isNotPaused;
   accept
 
 end
 
-transition sellTokens() end
+transition sellTokens() 
+  isNotPaused
+end
+
 transition payDebt() end
 transition createDebt() end
 transition cancelDebt() end

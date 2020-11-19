@@ -153,26 +153,29 @@ describe('Treasury Smart Contract Tests', function() {
   describe('Deployment Checks', function() {
 
     it('should have correct admin address', async function() {
-      allState = await treasury.getState();
-      expect(allState.admin).to.equal(address)
+      contractAdminAddress = await treasury_api.getAdmin();
+      expect(contractAdminAddress).to.equal(address)
     })
 
-    it('should have correct company address', function() {
-      expect(allState.company).to.equal(address)
+    it('should have correct company address', async function() {
+      contractCompanyAddress = await treasury_api.getCompany();
+      expect(contractCompanyAddress).to.equal(address)
     })
 
-    it('should have correct base price', function() {
-      const bn_price = new BN(allState.tokenPrice);
+    it('should have correct base price', async function() {
+      const price = await treasury_api.getTokenPrice();
+      const bn_price = new BN(price);
       expect(bn_price).to.deep.equal(units.toQa(baseValue, units.Units.Zil))
     })
 
-    it('should have 0 tokens', function() {
-      const num_tokens = allState.tokenBalance;
+    it('should have 0 tokens', async function() {
+      const num_tokens = await treasury_api.getTokenBalance();
       expect(num_tokens).to.equal('0')
     })
 
-    it('should be "paused" on contract creation', function() {
-      expect(allState.paused.constructor).to.equal('True')
+    it('should be "paused" on contract creation', async function() {
+      const pausedStatus = await treasury_api.isPaused();
+      expect(pausedStatus).to.equal('True')
     })
 
     it('should not be "under funded" on contract creation', function() {
@@ -225,7 +228,7 @@ describe('Treasury Smart Contract Tests', function() {
           expect(receipt.success).to.be.true;
           
           await treasury_api.setSigningAddress(nonAdminPrivateKey)    // change txn signer to non adming...
-          const receipt2 = await treasury_api.pauseContract();        // ...and attempt to unpause
+          const receipt2 = await treasury_api.pauseContract();        // ...and attempt to pause
           
           checkException(receipt2, exceptionCode);
 
@@ -271,7 +274,7 @@ describe('Treasury Smart Contract Tests', function() {
           expect(receipt.success).to.be.true;
 
           //need to confirm that company address has been set correctly.
-          const contractCompanyAddress = await treasury_api.getCompanyAddress();
+          const contractCompanyAddress = await treasury_api.getCompany();
           //console.log(contractCompanyAddress);
 
           expect(contractCompanyAddress).to.equal(nonAdminAddress);
@@ -307,8 +310,36 @@ describe('Treasury Smart Contract Tests', function() {
         it.skip('should recalculate exchange rates when receiving TOKENS that is not for paying invoice', function() {})
       })
       describe('Trading Features', function() {
-        it.skip('should not allow buying of tokens when paused', function() {})
-        it.skip('should not allow selling of tokens when paused', function() {})
+        it('should not allow buying of tokens when paused', async function() {
+
+          //pause it first
+          const receipt2 = await treasury_api.pauseContract(); 
+          expect(receipt2.success).to.be.true;
+
+          const zil_amount_BN = units.toQa(5, units.Units.Zil);
+          const receipt = await treasury_api.buyTokens(zil_amount_BN);
+
+          //check error is due to being 'paused'
+          exceptionCode = 'Int32 -5'
+          checkException(receipt, exceptionCode);
+
+          expect(receipt.success).to.be.false;
+        })
+        it('should not allow selling of tokens when paused', async function() {
+          //pause it first
+          const receipt2 = await treasury_api.pauseContract(); 
+          expect(receipt2.success).to.be.true;
+
+          //const zil_amount_BN = units.toQa(5, units.Units.Zil);
+          const receipt = await treasury_api.sellTokens();
+
+          //check error is due to being 'paused'
+          exceptionCode = 'Int32 -5'
+          checkException(receipt, exceptionCode);
+
+          //console.log(receipt);
+          expect(receipt.success).to.be.false; 
+        })
         it.skip('should allow buying of tokens when unpaused', async function() {
 
           const zil_amount_BN = units.toQa(5, units.Units.Zil);
