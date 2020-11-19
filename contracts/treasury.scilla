@@ -206,6 +206,9 @@ transition RecipientAcceptTransfer (sender : ByStr20, recipient : ByStr20, amoun
   isTokenContract = builtin eq _sender token_address;
   match isTokenContract with 
     | True =>
+      currentBalance <- tokenBalance;
+      newBalance = builtin add currentBalance amount;
+      tokenBalance := newBalance
     | False =>
     err = CodeInvalidToken;
     throwError err

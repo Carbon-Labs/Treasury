@@ -1,3 +1,4 @@
+let debugMode = true;
 var should = require('chai').should();
 var expect = require('chai').expect;
 //const assert = chai.assert;
@@ -59,10 +60,10 @@ before(async function() {
   const addressCheck = addressEqual(address, adminAddress);
   expect(addressCheck).to.be.true;
 
-  // Check address has at least 100 ZIL
+  // Check address has at least 10 ZIL
   const bal_obj = await zilliqa.blockchain.getBalance(address);
   const balance_BN = new BN(bal_obj.result.balance);
-  const min_amount_BN = units.toQa(100, units.Units.Zil);
+  const min_amount_BN = units.toQa(10, units.Units.Zil);
   let ok = balance_BN.gte(min_amount_BN);
   expect(ok).to.be.true;
 
@@ -288,13 +289,44 @@ describe('Treasury Smart Contract Tests', function() {
         })
       })
       describe('Internal Functions', function() {
-        it.skip('should recalculate exchange rates when receiving ZIL that is not for buying tokens', function() {})
+        it('should recalculate exchange rates when receiving ZIL that is not for buying tokens', async function() {
+            zilBalance = await treasury_api.getZilBalance();
+            tokenBalance = await treasury_api.getTokenBalance();
+            zilPrice = await treasury_api.getZilPrice();
+            tokenPrice = await treasury_api.getTokenPrice();
+
+            if(debugMode) {
+              console.log("Zil: ", zilBalance);
+              console.log("Tokens: ", tokenBalance);
+              console.log("Zil Price: ", zilPrice);
+              console.log("Token Price: ", tokenPrice);
+            }
+
+            expect(true).to.be.false;
+        })
         it.skip('should recalculate exchange rates when receiving TOKENS that is not for paying invoice', function() {})
       })
       describe('Trading Features', function() {
         it.skip('should not allow buying of tokens when paused', function() {})
         it.skip('should not allow selling of tokens when paused', function() {})
-        it.skip('should allow buying of tokens when unpaused', function() {})
+        it.skip('should allow buying of tokens when unpaused', async function() {
+
+          const zil_amount_BN = units.toQa(5, units.Units.Zil);
+         
+          const receipt = await treasury_api.buyTokens(zil_amount_BN);
+          //console.log(receipt);
+          //expect(receipt1.success).to.be.false;
+
+          //check that balance of zil is increased correct amount
+          //check that balance of zil decreased for sender
+          
+
+          //check that balance of tokens has reduced correct amount
+          //check that balance of tokens increased for sender
+
+          expect(true).to.be.false;
+
+        })
         it.skip('should allow selling of tokens when unpaused', function() {})
         it.skip('should not allow selling more tokens than you have', function() {})
         it.skip('should issue correct amount of tokens when buying tokens with 1 ZIL', function() {})
