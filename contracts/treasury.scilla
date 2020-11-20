@@ -9,8 +9,8 @@ library TreasuryLib
 (* Global Variables *)
 let zero = Uint128 0
 let one = Uint128 1
-let tenpower12 = Uint128 1000000000000       (* Zil :) *)
-let token = Uint128 100000000       (* This should be pulled in from associated token contract state *)
+let tenpower12 = Uint128 1000000000000        (* Zil :) *)
+let token = Uint128 100000000                 (* This should be pulled in from associated token contract state *)
 let true = True
 let false = False
 
@@ -43,6 +43,16 @@ let make_error =
     in
     { _exception : "Error"; code : result_code }
 
+  type DebtStatus = 
+    | DebtCancelled
+    | DebtDraft
+    | DebtActive
+    | DebtPaid 
+
+    type Debt =
+    (* address of payer, amount to be paid, arbitary reference, amount paid, status  *)
+    | Debt of ByStr20 Uint128 String Uint128 DebtStatus
+
 
 (***************************************************)
 (*             Contract                            *)
@@ -64,12 +74,13 @@ contract Treasury
 field paused : Bool = True
 field underFunded : Bool = False
 field admin : ByStr20 = init_admin
-field company : ByStr20 = init_company    (* Address of company that receives percentage of tokens distributed *)
-field tokenPrice : Uint128 = builtin mul base_value tenpower12 (* Price (in ZIL) of a single token *)
-field zilPrice : Uint128 = builtin div token base_value (* Price (in Token) of a single ZIL *)
-field tokenBalance : Uint128 = Uint128 0 (* Number of tokens held by contract *)
+field company : ByStr20 = init_company                          (* Address of company that receives percentage of tokens distributed *)
+field tokenPrice : Uint128 = builtin mul base_value tenpower12  (* Price (in ZIL) of a single token *)
+field zilPrice : Uint128 = builtin div token base_value         (* Price (in Token) of a single ZIL *)
+field tokenBalance : Uint128 = Uint128 0                        (* Number of tokens held by contract *)
 
-
+field debtIndex : Uint128  = Uint128 0
+field debts : Map Uint128 Debt = Emp Uint128 Debt
 
 
 (*---------------*)
@@ -198,7 +209,15 @@ transition sellTokens()
 end
 
 transition payDebt() end
-transition createDebt() end
+
+transition createDebt(data : Debt) 
+  currentIndex <- debtIndex;
+  newIndex  = let one = Uint128 1 in builtin add currentIndex one;
+  debts[newIndex] := data;
+  debtIndex := newIndex
+
+end
+
 transition cancelDebt() end
 transition getDebtDetails() end
 transition getDebtAmountPaid() end
