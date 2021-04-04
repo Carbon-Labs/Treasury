@@ -49,9 +49,9 @@ let make_error =
     | DebtActive
     | DebtPaid 
 
-    type Debt =
+  type Debt =
     (* address of payer, amount to be paid, arbitary reference, amount paid, status  *)
-    | Debt of ByStr20 Uint128 String Uint128 DebtStatus
+    | Debt of ByStr20 Uint128 String Uint128
 
 
 (***************************************************)
@@ -208,7 +208,10 @@ transition sellTokens()
   isNotPaused
 end
 
-transition payDebt() end
+(* Simple method of receiving Zil *)
+transition addFunds() 
+accept
+end
 
 transition createDebt(data : Debt) 
   currentIndex <- debtIndex;

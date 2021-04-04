@@ -369,7 +369,10 @@ describe('Treasury Smart Contract Tests', function() {
          const receipt = await treasury_api.createDebt();
          console.log(receipt)
        }) 
-       it.skip('should not allow creating debt with same id', function() {})
+       it('should not allow creating debt with same id', async function() {
+        const receipt = await treasury_api.createDebt();
+        console.log(receipt)
+       })
        it.skip('should only allow admin to cancel a debt', function() {})
        it.skip('should error when trying to cancel a debt that does not exist', function() {})
        it.skip('should allow a debt to be partially paid with tokens', function() {})

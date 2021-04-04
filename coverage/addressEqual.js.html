@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">25% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>10/12</span>
+                <span class='fraction'>3/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>4/8</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>0/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">25% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>10/12</span>
+                <span class='fraction'>3/12</span>
             </div>
         
             
@@ -55,7 +55,7 @@
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
         </p>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -78,34 +78,34 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">const {validation} = require('@zilliqa-js/util');
 const {fromBech32Address, toBech32Address} = require('@zilliqa-js/crypto');
 &nbsp;
-function addressEqual(address_a, address_b) {
-    let a = '';
-    let b = '';
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (validation.isBech32(address_a))
+function <span class="fstat-no" title="function not covered" >addressEqual(</span>address_a, address_b) {
+    let a = <span class="cstat-no" title="statement not covered" >'';</span>
+    let b = <span class="cstat-no" title="statement not covered" >'';</span>
+<span class="cstat-no" title="statement not covered" >    if (validation.isBech32(address_a))</span>
 <span class="cstat-no" title="statement not covered" >        a = fromBech32Address(address_a)</span>
     else
-        a = (address_a.substring(0,2) == '0x' ? address_a : <span class="branch-1 cbranch-no" title="branch not covered" >'0x' + address_a)</span>;
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (validation.isBech32(address_b))
+<span class="cstat-no" title="statement not covered" >        a = (address_a.substring(0,2) == '0x' ? address_a : '0x' + address_a);</span>
+<span class="cstat-no" title="statement not covered" >    if (validation.isBech32(address_b))</span>
 <span class="cstat-no" title="statement not covered" >        b = fromBech32Address(address_b)</span>
     else
-        b = (address_b.substring(0,2) == '0x' ? address_b : <span class="branch-1 cbranch-no" title="branch not covered" >'0x' + address_b)</span>;
-    return a.toLowerCase() == b.toLowerCase();
+<span class="cstat-no" title="statement not covered" >        b = (address_b.substring(0,2) == '0x' ? address_b : '0x' + address_b);</span>
+<span class="cstat-no" title="statement not covered" >    return a.toLowerCase() == b.toLowerCase();</span>
 }
 &nbsp;
 module.exports = {addressEqual};</pre></td></tr></table></pre>
@@ -115,7 +115,7 @@ module.exports = {addressEqual};</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Fri Nov 20 2020 15:18:54 GMT+1300 (New Zealand Daylight Time)
+                at Sun Apr 04 2021 23:28:00 GMT+1200 (New Zealand Standard Time)
             </div>
         </div>
         <script src="prettify.js"></script>
